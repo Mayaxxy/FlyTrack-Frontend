@@ -8,7 +8,7 @@ import { Passenger } from '../../models/auth.model';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, DatePipe],
+  imports: [CommonModule, FormsModule, NavbarComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })

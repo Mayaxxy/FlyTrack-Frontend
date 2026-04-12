@@ -3,8 +3,8 @@
 <div class="profile-container">
   <div class="profile-header">
     <div class="avatar-large">
-      @if (user()) {
-        {{ user().firstName[0] }}{{ user().lastName[0] }}
+      @if (user() && user()!.firstName && user()!.lastName) {
+        {{ user()!.firstName[0] }}{{ user()!.lastName[0] }}
       }
     </div>
     <div>
