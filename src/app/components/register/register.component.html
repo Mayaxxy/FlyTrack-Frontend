@@ -159,7 +159,7 @@
                 [value]="email()"
                 (input)="email.set($any($event.target).value)"
                 placeholder="correo@ejemplo.com" maxlength="100"
-                autocomplete="off"
+                autocomplete="username"
                 [class.input-error]="email().length > 0 && !isEmailValid()"
                 required />
             </div>
@@ -208,7 +208,7 @@
               [value]="password()"
               (input)="password.set($any($event.target).value)"
               placeholder="••••••••" maxlength="64"
-              autocomplete="off"
+              autocomplete="new-password"
               required />
             <button type="button" class="toggle-password" (click)="togglePassword()">
               {{ showPassword() ? '🙈' : '👁' }}
@@ -258,7 +258,7 @@
                 [value]="confirmPassword()"
                 (input)="confirmPassword.set($any($event.target).value)"
                 placeholder="••••••••" maxlength="64"
-                autocomplete="off"
+                autocomplete="new-password"
                 required
                 [class.input-error]="confirmPassword().length > 0 && confirmPassword() !== password()" />
               <button type="button" class="toggle-password" (click)="toggleConfirmPassword()">
