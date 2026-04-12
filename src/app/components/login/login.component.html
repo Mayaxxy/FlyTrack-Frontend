@@ -23,7 +23,7 @@
         <p>Accede a tu cuenta para gestionar tus vuelos</p>
       </div>
 
-      <form (ngSubmit)="onSubmit()" class="login-form">
+      <form (ngSubmit)="onSubmit()" class="login-form" autocomplete="off">
 
         @if (error()) {
           <div class="error-message">
@@ -43,6 +43,7 @@
               (input)="email.set($any($event.target).value)"
               placeholder="correo@ejemplo.com"
               [class.input-error]="email().length > 0 && !isEmailValid()"
+              autocomplete="off"
               required
             />
           </div>
@@ -62,6 +63,7 @@
               [value]="password()"
               (input)="password.set($any($event.target).value)"
               placeholder="••••••••"
+              autocomplete="off"
               required
             />
             <button type="button" class="toggle-password" (click)="togglePassword()">

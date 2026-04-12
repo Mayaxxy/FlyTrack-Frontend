@@ -21,7 +21,7 @@
         <p>Regístrate para gestionar tus vuelos y check-in</p>
       </div>
 
-      <form (ngSubmit)="onSubmit()" class="register-form">
+      <form (ngSubmit)="onSubmit()" class="register-form" autocomplete="off">
 
         @if (error()) {
           <div class="error-message"><span>⚠</span> {{ error() }}</div>
@@ -52,6 +52,7 @@
                 [placeholder]="documentPlaceholder()"
                 [attr.inputmode]="documentType() === 'PASSPORT' ? 'text' : 'numeric'"
                 maxlength="20"
+                autocomplete="off"
                 [class.input-error]="documentId().length > 0 && !!documentError()"
                 required />
             </div>
@@ -72,6 +73,7 @@
                   [value]="firstName()"
                   (input)="firstName.set($any($event.target).value)"
                   placeholder="Juan" maxlength="50"
+                  autocomplete="off"
                   [class.input-error]="firstName().length > 0 && !!nameError()"
                   required />
               </div>
@@ -87,7 +89,8 @@
               <input type="text" id="middleName"
                 [value]="middleName()"
                 (input)="middleName.set($any($event.target).value)"
-                placeholder="Carlos (opcional)" maxlength="50" />
+                placeholder="Carlos (opcional)" maxlength="50"
+                autocomplete="off" />
             </div>
           </div>
         </div>
@@ -103,6 +106,7 @@
                   [value]="lastName()"
                   (input)="lastName.set($any($event.target).value)"
                   placeholder="Pérez" maxlength="50"
+                  autocomplete="off"
                   [class.input-error]="lastName().length > 0 && !!lastNameError()"
                   required />
               </div>
@@ -118,7 +122,8 @@
               <input type="text" id="secondLastName"
                 [value]="secondLastName()"
                 (input)="secondLastName.set($any($event.target).value)"
-                placeholder="García (opcional)" maxlength="50" />
+                placeholder="García (opcional)" maxlength="50"
+                autocomplete="off" />
             </div>
           </div>
         </div>
@@ -134,6 +139,7 @@
                 (input)="onBirthDateInput($event)"
                 [max]="maxBirthDate()"
                 min="1900-01-01"
+                autocomplete="off"
                 [class.input-error]="birthDate().length > 0 && !!ageError()"
                 required />
             </div>
@@ -153,6 +159,7 @@
                 [value]="email()"
                 (input)="email.set($any($event.target).value)"
                 placeholder="correo@ejemplo.com" maxlength="100"
+                autocomplete="off"
                 [class.input-error]="email().length > 0 && !isEmailValid()"
                 required />
             </div>
@@ -181,6 +188,7 @@
                   (input)="onPhoneInput($event)"
                   placeholder="321 879 89 89"
                   maxlength="15"
+                  autocomplete="off"
                   [class.input-error]="phone().length > 0 && !!phoneError()"
                   required />
               </div>
@@ -199,7 +207,9 @@
             <input [type]="showPassword() ? 'text' : 'password'" id="password"
               [value]="password()"
               (input)="password.set($any($event.target).value)"
-              placeholder="••••••••" maxlength="64" required />
+              placeholder="••••••••" maxlength="64"
+              autocomplete="off"
+              required />
             <button type="button" class="toggle-password" (click)="togglePassword()">
               {{ showPassword() ? '🙈' : '👁' }}
             </button>
@@ -247,7 +257,9 @@
               <input [type]="showConfirmPassword() ? 'text' : 'password'" id="confirmPassword"
                 [value]="confirmPassword()"
                 (input)="confirmPassword.set($any($event.target).value)"
-                placeholder="••••••••" maxlength="64" required
+                placeholder="••••••••" maxlength="64"
+                autocomplete="off"
+                required
                 [class.input-error]="confirmPassword().length > 0 && confirmPassword() !== password()" />
               <button type="button" class="toggle-password" (click)="toggleConfirmPassword()">
                 {{ showConfirmPassword() ? '🙈' : '👁' }}
