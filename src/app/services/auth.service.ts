@@ -67,6 +67,13 @@ export class AuthService {
     return this.currentUserSubject.value?.role === 'ADMIN';
   }
 
+  refreshToken(): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/refresh`, {})
+      .pipe(
+        tap(response => this.handleAuthResponse(response))
+      );
+  }
+
   private handleAuthResponse(response: AuthResponse): void {
     localStorage.setItem('token', response.token);
     localStorage.setItem('currentUser', JSON.stringify(response.passenger));
