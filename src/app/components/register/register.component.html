@@ -1,0 +1,351 @@
+<div class="register-page">
+
+  <!-- Left: Hero -->
+  <div class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="brand">
+        <span class="brand-accent">✈</span>
+        <span class="brand-name">FlyTrack</span>
+      </div>
+      <h1 class="hero-title">ÚNETE A<br>NUESTRA<br><strong>COMUNIDAD</strong></h1>
+      <p class="hero-subtitle">AeroPuerto Smart — Tu viaje, bajo control.</p>
+    </div>
+  </div>
+
+  <!-- Right: Form -->
+  <div class="form-section">
+    <div class="form-wrapper">
+      <div class="form-header">
+        <h2>Crear Cuenta</h2>
+        <p>Regístrate para gestionar tus vuelos y check-in</p>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="register-form">
+
+        @if (error()) {
+          <div class="error-message"><span>⚠</span> {{ error() }}</div>
+        }
+
+        <!-- Tipo de documento -->
+        <div class="form-group">
+          <label>Tipo de Documento</label>
+          <div class="doc-type-selector">
+            <button type="button" [class.active]="documentType() === 'CC'"
+              (click)="documentType.set('CC'); documentId.set('')">Cédula</button>
+            <button type="button" [class.active]="documentType() === 'PASSPORT'"
+              (click)="documentType.set('PASSPORT'); documentId.set('')">Pasaporte</button>
+            <button type="button" [class.active]="documentType() === 'CE'"
+              (click)="documentType.set('CE'); documentId.set('')">C. Extranjería</button>
+          </div>
+        </div>
+
+        <!-- Número de documento -->
+        <div class="form-group">
+          <label for="documentId">Número de Documento</label>
+          <div class="input-row">
+            <div class="input-wrapper">
+              <span class="input-icon">🪪</span>
+              <input type="text" id="documentId"
+                [value]="documentId()"
+                (input)="onDocumentInput($event)"
+                [placeholder]="documentPlaceholder()"
+                [attr.inputmode]="documentType() === 'PASSPORT' ? 'text' : 'numeric'"
+                maxlength="20"
+                [class.input-error]="documentId().length > 0 && !!documentError()"
+                required />
+            </div>
+            @if (documentId().length > 0 && documentError()) {
+              <p class="field-error">{{ documentError() }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Nombres -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">Primer Nombre <span class="required">*</span></label>
+            <div class="input-row">
+              <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input type="text" id="firstName"
+                  [value]="firstName()"
+                  (input)="firstName.set($any($event.target).value)"
+                  placeholder="Juan" maxlength="50"
+                  [class.input-error]="firstName().length > 0 && !!nameError()"
+                  required />
+              </div>
+              @if (firstName().length > 0 && nameError()) {
+                <p class="field-error">{{ nameError() }}</p>
+              }
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="middleName">Segundo Nombre</label>
+            <div class="input-wrapper">
+              <span class="input-icon">👤</span>
+              <input type="text" id="middleName"
+                [value]="middleName()"
+                (input)="middleName.set($any($event.target).value)"
+                placeholder="Carlos (opcional)" maxlength="50" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Apellidos -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="lastName">Primer Apellido <span class="required">*</span></label>
+            <div class="input-row">
+              <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input type="text" id="lastName"
+                  [value]="lastName()"
+                  (input)="lastName.set($any($event.target).value)"
+                  placeholder="Pérez" maxlength="50"
+                  [class.input-error]="lastName().length > 0 && !!lastNameError()"
+                  required />
+              </div>
+              @if (lastName().length > 0 && lastNameError()) {
+                <p class="field-error">{{ lastNameError() }}</p>
+              }
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="secondLastName">Segundo Apellido</label>
+            <div class="input-wrapper">
+              <span class="input-icon">👤</span>
+              <input type="text" id="secondLastName"
+                [value]="secondLastName()"
+                (input)="secondLastName.set($any($event.target).value)"
+                placeholder="García (opcional)" maxlength="50" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Fecha de nacimiento -->
+        <div class="form-group">
+          <label for="birthDate">Fecha de Nacimiento <span class="required">*</span></label>
+          <div class="input-row">
+            <div class="input-wrapper">
+              <span class="input-icon">🎂</span>
+              <input type="date" id="birthDate"
+                [value]="birthDate()"
+                (input)="onBirthDateInput($event)"
+                [max]="maxBirthDate()"
+                min="1900-01-01"
+                [class.input-error]="birthDate().length > 0 && !!ageError()"
+                required />
+            </div>
+            @if (birthDate().length > 0 && ageError()) {
+              <p class="field-error">{{ ageError() }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Correo Electrónico <span class="required">*</span></label>
+          <div class="input-row">
+            <div class="input-wrapper">
+              <span class="input-icon">✉</span>
+              <input type="email" id="email"
+                [value]="email()"
+                (input)="email.set($any($event.target).value)"
+                placeholder="correo@ejemplo.com" maxlength="100"
+                [class.input-error]="email().length > 0 && !isEmailValid()"
+                required />
+            </div>
+            @if (email().length > 0 && !isEmailValid()) {
+              <p class="field-error">Correo inválido</p>
+            }
+          </div>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="form-group">
+          <label for="phone">Teléfono <span class="required">*</span></label>
+          <div class="input-row">
+            <div class="phone-wrapper" style="flex:1; min-width:0;">
+              <select class="country-select"
+                [value]="phoneCountry()"
+                (change)="phoneCountry.set($any($event.target).value)">
+                @for (c of countries; track c.code) {
+                  <option [value]="c.code">{{ c.flag }} {{ c.code }}</option>
+                }
+              </select>
+              <div class="input-wrapper phone-input">
+                <span class="input-icon">📱</span>
+                <input type="tel" id="phone"
+                  [value]="phoneDisplay()"
+                  (input)="onPhoneInput($event)"
+                  placeholder="321 879 89 89"
+                  maxlength="15"
+                  [class.input-error]="phone().length > 0 && !!phoneError()"
+                  required />
+              </div>
+            </div>
+            @if (phone().length > 0 && phoneError()) {
+              <p class="field-error">{{ phoneError() }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="form-group">
+          <label for="password">Contraseña <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input [type]="showPassword() ? 'text' : 'password'" id="password"
+              [value]="password()"
+              (input)="password.set($any($event.target).value)"
+              placeholder="••••••••" maxlength="64" required />
+            <button type="button" class="toggle-password" (click)="togglePassword()">
+              {{ showPassword() ? '🙈' : '👁' }}
+            </button>
+          </div>
+          @if (password().length > 0) {
+            <div class="strength-bar">
+              <div class="strength-track">
+                <div class="strength-fill" [class]="passwordStrength()"></div>
+              </div>
+              <span class="strength-label" [class]="passwordStrength()">
+                @switch (passwordStrength()) {
+                  @case ('weak')   { Débil }
+                  @case ('fair')   { Regular }
+                  @case ('good')   { Buena }
+                  @case ('strong') { Segura ✓ }
+                }
+              </span>
+            </div>
+            <ul class="password-rules">
+              <li [class.valid]="passwordRules().length">
+                <span class="rule-icon">{{ passwordRules().length ? '✓' : '○' }}</span> Mínimo 8 caracteres
+              </li>
+              <li [class.valid]="passwordRules().uppercase">
+                <span class="rule-icon">{{ passwordRules().uppercase ? '✓' : '○' }}</span> Una mayúscula
+              </li>
+              <li [class.valid]="passwordRules().lowercase">
+                <span class="rule-icon">{{ passwordRules().lowercase ? '✓' : '○' }}</span> Una minúscula
+              </li>
+              <li [class.valid]="passwordRules().number">
+                <span class="rule-icon">{{ passwordRules().number ? '✓' : '○' }}</span> Un número
+              </li>
+              <li [class.valid]="passwordRules().special">
+                <span class="rule-icon">{{ passwordRules().special ? '✓' : '○' }}</span> Un carácter especial
+              </li>
+            </ul>
+          }
+        </div>
+
+        <!-- Confirmar contraseña -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirmar Contraseña <span class="required">*</span></label>
+          <div class="input-row">
+            <div class="input-wrapper" style="flex:1;">
+              <span class="input-icon">🔒</span>
+              <input [type]="showConfirmPassword() ? 'text' : 'password'" id="confirmPassword"
+                [value]="confirmPassword()"
+                (input)="confirmPassword.set($any($event.target).value)"
+                placeholder="••••••••" maxlength="64" required
+                [class.input-error]="confirmPassword().length > 0 && confirmPassword() !== password()" />
+              <button type="button" class="toggle-password" (click)="toggleConfirmPassword()">
+                {{ showConfirmPassword() ? '🙈' : '👁' }}
+              </button>
+            </div>
+            @if (confirmPassword().length > 0 && confirmPassword() !== password()) {
+              <p class="field-error">No coinciden</p>
+            }
+          </div>
+        </div>
+
+        <!-- Política de datos -->
+        <div class="policy-group">
+          <label class="checkbox-label">
+            <input type="checkbox"
+              [checked]="acceptedDataPolicy()"
+              (change)="acceptedDataPolicy.set($any($event.target).checked)" />
+            <span>
+              Acepto la
+              <button type="button" class="policy-link" (click)="openPolicy()">
+                Política de Tratamiento de Datos
+              </button>
+            </span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="loading()">
+          @if (loading()) { <span>Registrando...</span> }
+          @else { <span>Crear Cuenta →</span> }
+        </button>
+
+        <p class="login-link">
+          ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión aquí</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal política de datos -->
+@if (showPolicyModal()) {
+  <div class="modal-backdrop" (click)="closePolicy()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Política de Tratamiento de Datos Personales</h3>
+        <button type="button" class="modal-close" (click)="closePolicy()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>FlyTrack — AeroPuerto Smart S.A.S.</strong></p>
+        <p>En cumplimiento de la <strong>Ley Estatutaria 1581 de 2012</strong>, el <strong>Decreto Reglamentario 1377 de 2013</strong> y demás normas concordantes sobre Protección de Datos Personales en Colombia, ponemos a su disposición la presente Política de Tratamiento de Datos Personales.</p>
+
+        <h4>1. Responsable del Tratamiento</h4>
+        <p><strong>AeroPuerto Smart S.A.S.</strong>, identificada con NIT 900.000.000-0, domiciliada en la ciudad de Bogotá D.C., Colombia. Correo de contacto: <strong>datos&#64;aerosmart.co</strong></p>
+
+        <h4>2. Datos Personales Recopilados</h4>
+        <ul>
+          <li>Nombre completo (primer nombre, segundo nombre, primer apellido, segundo apellido)</li>
+          <li>Tipo y número de documento de identidad (CC, Pasaporte, Cédula de Extranjería)</li>
+          <li>Fecha de nacimiento</li>
+          <li>Correo electrónico</li>
+          <li>Número de teléfono</li>
+        </ul>
+
+        <h4>3. Finalidades del Tratamiento</h4>
+        <ul>
+          <li>Gestión de reservas, vuelos y servicios aeroportuarios</li>
+          <li>Proceso de check-in y generación de pases de abordaje</li>
+          <li>Envío de notificaciones sobre el estado de vuelos</li>
+          <li>Atención de reportes de equipaje y PQRS</li>
+          <li>Cumplimiento de obligaciones legales ante autoridades aeronáuticas y migratorias</li>
+          <li>Mejora de la experiencia del usuario en la plataforma</li>
+        </ul>
+
+        <h4>4. Derechos del Titular (Art. 8, Ley 1581/2012)</h4>
+        <p>Como titular de sus datos personales, usted tiene derecho a:</p>
+        <ul>
+          <li>Conocer, actualizar y rectificar sus datos personales</li>
+          <li>Solicitar prueba de la autorización otorgada</li>
+          <li>Ser informado sobre el uso de sus datos</li>
+          <li>Presentar quejas ante la Superintendencia de Industria y Comercio (SIC)</li>
+          <li>Revocar la autorización y/o solicitar la supresión de sus datos</li>
+          <li>Acceder gratuitamente a sus datos personales</li>
+        </ul>
+
+        <h4>5. Transferencia y Transmisión de Datos</h4>
+        <p>Los datos podrán ser compartidos con aerolíneas, autoridades migratorias y entidades de seguridad aeroportuaria, únicamente para las finalidades descritas y con las garantías exigidas por la ley colombiana.</p>
+
+        <h4>6. Vigencia y Conservación</h4>
+        <p>Los datos serán conservados durante la vigencia de la relación contractual y por el tiempo adicional exigido por la normativa colombiana aplicable (mínimo 5 años según normas contables y tributarias).</p>
+
+        <h4>7. Autoridad de Control</h4>
+        <p>Para ejercer sus derechos o presentar reclamaciones puede contactar a la <strong>Superintendencia de Industria y Comercio (SIC)</strong> en <strong>www.sic.gov.co</strong> o a nuestra línea de atención: <strong>datos&#64;aerosmart.co</strong></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closePolicy()">Cerrar</button>
+        <button type="button" class="btn-primary" (click)="acceptPolicy()">Acepto la Política</button>
+      </div>
+    </div>
+  </div>
+}

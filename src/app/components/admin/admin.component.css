@@ -1,0 +1,130 @@
+/* Admin Navbar */
+.admin-navbar {
+  background: #1a0a3c;
+  color: white;
+  position: sticky; top: 0; z-index: 1000;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+}
+.admin-nav-inner {
+  max-width: 1400px; margin: 0 auto;
+  padding: 0 1.5rem; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 0.75rem; }
+.brand-icon { font-size: 1.4rem; color: var(--accent); }
+.brand-name { display: block; font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; line-height: 1; }
+.brand-role { display: block; font-size: 0.7rem; opacity: 0.6; letter-spacing: 0.5px; }
+.admin-badge { background: rgba(227,6,19,0.2); color: #ff6b7a; border: 1px solid rgba(227,6,19,0.3); padding: 0.4rem 0.875rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+
+/* Container */
+.admin-container { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+.admin-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;
+}
+.admin-header h1 { font-size: 1.75rem; font-weight: 800; color: var(--primary); margin-bottom: 0.25rem; }
+.admin-header p { color: var(--text-muted); font-size: 0.95rem; }
+
+.btn-new {
+  background: var(--primary); color: white; border: none;
+  border-radius: var(--radius); padding: 0.75rem 1.5rem;
+  font-weight: 700; font-size: 0.9rem; white-space: nowrap;
+  transition: background 0.2s;
+}
+.btn-new:hover { background: var(--primary-hover); }
+
+/* Alerts */
+.alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; padding: 0.75rem 1rem; border-radius: var(--radius); margin-bottom: 1rem; font-weight: 600; }
+.alert-error   { background: #fff1f2; color: var(--accent); border: 1px solid #fecdd3; padding: 0.75rem 1rem; border-radius: var(--radius); margin-bottom: 1rem; font-weight: 600; }
+
+/* Form card */
+.form-card {
+  background: white; border-radius: var(--radius);
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  padding: 1.75rem; margin-bottom: 1.5rem;
+}
+.form-card h2 { font-size: 1.1rem; font-weight: 800; color: var(--primary); margin-bottom: 1.5rem; }
+
+.form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+
+.form-group { margin-bottom: 0; }
+.form-group label { display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #374151; margin-bottom: 0.4rem; }
+.req { color: var(--accent); }
+.form-group input {
+  width: 100%; padding: 0.7rem 0.875rem;
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  font-size: 0.875rem; transition: border-color 0.2s;
+}
+.form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(10,25,60,0.08); }
+
+.btn-submit {
+  margin-top: 1.25rem; padding: 0.875rem 2.5rem;
+  background: var(--primary); color: white; border: none;
+  border-radius: var(--radius); font-weight: 700; font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.btn-submit:hover:not(:disabled) { background: var(--primary-hover); }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Table */
+.table-card {
+  background: white; border-radius: var(--radius);
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.table-header h2 { font-size: 1rem; font-weight: 800; color: var(--primary); }
+.count { font-size: 0.8rem; color: var(--text-muted); background: #f0f2f7; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600; }
+
+.table-wrapper { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+thead { background: #f8f9fc; }
+th { padding: 0.875rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 0.875rem 1rem; font-size: 0.875rem; border-bottom: 1px solid #f0f2f7; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8f9fc; }
+
+.flight-code-cell { font-weight: 800; color: var(--primary); font-size: 0.95rem; }
+.airport { font-weight: 700; color: var(--primary); }
+.arrow { color: var(--text-muted); }
+.time-cell { color: var(--text-muted); font-size: 0.82rem; }
+
+.badge { display: inline-flex; align-items: center; padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-info    { background: #dbeafe; color: #1e40af; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-success { background: #d1fae5; color: #065f46; }
+.badge-danger  { background: #fee2e2; color: #991b1b; }
+.badge-default { background: #f3f4f6; color: #374151; }
+
+.status-select {
+  padding: 0.4rem 0.6rem; border: 1.5px solid var(--border);
+  border-radius: 6px; font-size: 0.8rem; background: white;
+  color: var(--text); cursor: pointer; transition: border-color 0.2s;
+}
+.status-select:focus { outline: none; border-color: var(--primary); }
+
+/* States */
+.loading-container { display: flex; flex-direction: column; align-items: center; padding: 4rem; gap: 1rem; color: var(--text-muted); }
+.spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-state { text-align: center; padding: 4rem 1rem; color: var(--text-muted); }
+.empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+.empty-state h3 { font-size: 1.1rem; color: var(--primary); margin-bottom: 0.5rem; }
+
+@media (max-width: 900px) {
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .admin-container { padding: 1.5rem 1rem; }
+}
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .admin-header { flex-direction: column; }
+  .btn-new { width: 100%; }
+}

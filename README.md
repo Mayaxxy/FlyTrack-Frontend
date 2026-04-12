@@ -1,59 +1,209 @@
-# FlytrackFrontend
+# FlyTrack Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.7.
+Aplicación web moderna para el aeropuerto AeroPuerto Smart que permite a los pasajeros gestionar sus vuelos de manera digital.
 
-## Development server
+## 🚀 Características
 
-To start a local development server, run:
+- **Autenticación Segura**: Login y registro con JWT
+- **Gestión de Vuelos**: Consulta de vuelos con filtros por origen/destino
+- **Check-in Digital**: Proceso de check-in online (24-48 horas antes del vuelo)
+- **Pase de Abordaje con QR Dinámico**: Código QR que se regenera cada 45 segundos
+- **Notificaciones en Tiempo Real**: Alertas sobre cambios en vuelos
+- **Reporte de Equipaje**: Sistema para reportar inconvenientes con equipaje
+- **Diseño Responsivo**: Optimizado para móvil, tablet y desktop
+- **Estilo Avianca**: Colores rojo (#E30613) y blanco
 
-```bash
-ng serve
-```
+## 🛠️ Tecnologías
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Angular 21** - Framework principal
+- **TypeScript** - Lenguaje de programación
+- **RxJS** - Programación reactiva
+- **Angular Signals** - Gestión de estado
+- **HttpClient** - Comunicación con API REST
+- **Angular Router** - Navegación
+- **Standalone Components** - Arquitectura moderna de Angular
 
-## Code scaffolding
+## 📋 Requisitos Previos
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- Node.js 20+ 
+- npm 11+
+- Backend de AeroPuerto Smart corriendo en `http://localhost:8080`
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## 🔧 Instalación
 
 ```bash
-ng test
+# Instalar dependencias
+npm install
+
+# Configurar la URL del backend (opcional)
+# Editar src/environments/environment.ts si el backend está en otra URL
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+## 🚀 Ejecución
 
 ```bash
-ng e2e
+# Modo desarrollo
+npm start
+
+# La aplicación estará disponible en http://localhost:4200
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 🏗️ Build para Producción
 
-## Additional Resources
+```bash
+# Compilar para producción
+npm run build
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+# Los archivos compilados estarán en dist/
+```
+
+## 📁 Estructura del Proyecto
+
+```
+src/
+├── app/
+│   ├── components/          # Componentes de la aplicación
+│   │   ├── login/          # Login de usuarios
+│   │   ├── register/       # Registro de usuarios
+│   │   ├── dashboard/      # Dashboard principal con vuelos
+│   │   ├── flight-card/    # Tarjeta de vuelo
+│   │   ├── checkin/        # Proceso de check-in
+│   │   ├── boarding-pass/  # Pase de abordaje con QR
+│   │   ├── notifications/  # Lista de notificaciones
+│   │   ├── baggage/        # Reportes de equipaje
+│   │   └── navbar/         # Barra de navegación
+│   ├── services/           # Servicios de la aplicación
+│   │   ├── auth.service.ts
+│   │   ├── flight.service.ts
+│   │   ├── checkin.service.ts
+│   │   ├── notification.service.ts
+│   │   └── baggage.service.ts
+│   ├── models/             # Interfaces y tipos
+│   ├── guards/             # Guards de autenticación
+│   ├── interceptors/       # Interceptores HTTP
+│   ├── app.routes.ts       # Configuración de rutas
+│   └── app.config.ts       # Configuración de la app
+├── environments/           # Configuración de entornos
+└── styles.css             # Estilos globales
+```
+
+## 🔐 Autenticación
+
+La aplicación usa JWT (JSON Web Tokens) para autenticación:
+
+1. El usuario se registra o inicia sesión
+2. El backend devuelve un token JWT
+3. El token se almacena en localStorage
+4. Todas las peticiones autenticadas incluyen el token en el header `Authorization: Bearer {token}`
+5. Si el token expira, el usuario es redirigido al login
+
+## 🛣️ Rutas
+
+- `/login` - Inicio de sesión
+- `/register` - Registro de usuario
+- `/dashboard` - Dashboard con lista de vuelos (protegida)
+- `/checkin/:flightCode` - Check-in para un vuelo (protegida)
+- `/boarding-pass/:checkInId` - Pase de abordaje con QR (protegida)
+- `/notifications` - Lista de notificaciones (protegida)
+- `/baggage` - Reportes de equipaje (protegida)
+
+## 🎨 Diseño
+
+El diseño sigue la identidad visual de Avianca:
+
+- **Color Primario**: #E30613 (Rojo)
+- **Color Secundario**: #FFFFFF (Blanco)
+- **Fuente**: Sans-serif del sistema
+- **Espaciado**: Escala de 8px
+- **Border Radius**: 4-8px
+- **Sombras**: Para componentes elevados
+
+## 📱 Responsive Design
+
+La aplicación se adapta a diferentes tamaños de pantalla:
+
+- **Móvil**: < 768px
+- **Tablet**: 768px - 1024px
+- **Desktop**: > 1024px
+
+## 🔄 Actualización Automática
+
+- **Vuelos**: Se actualizan cada 60 segundos
+- **Notificaciones**: Se consultan cada 30 segundos
+- **QR de Abordaje**: Se regenera cada 45 segundos
+
+## 🔌 Integración con Backend
+
+El frontend se comunica con el backend a través de los siguientes endpoints:
+
+### Autenticación
+- `POST /api/auth/register` - Registro
+- `POST /api/auth/login` - Login
+- `GET /api/auth/profile` - Perfil del usuario
+
+### Vuelos
+- `GET /api/flights/public/upcoming` - Vuelos próximos
+- `GET /api/flights/public/origin/{origin}` - Vuelos por origen
+- `GET /api/flights/public/destination/{destination}` - Vuelos por destino
+
+### Check-in
+- `POST /api/checkin` - Realizar check-in
+- `GET /api/boarding-pass/{checkInId}` - Obtener pase de abordaje
+
+### Notificaciones
+- `GET /api/notifications` - Obtener notificaciones
+- `PUT /api/notifications/{id}/read` - Marcar como leída
+
+### Equipaje
+- `POST /api/baggage-reports` - Crear reporte
+- `GET /api/baggage-reports/my-reports` - Mis reportes
+
+## 🧪 Testing
+
+```bash
+# Ejecutar tests
+npm test
+```
+
+## 📝 Notas de Desarrollo
+
+### Signals vs Observables
+
+El proyecto usa Angular Signals para estado local y Observables (RxJS) para operaciones asíncronas:
+
+- **Signals**: Estado de componentes (loading, error, datos)
+- **Observables**: Peticiones HTTP, polling, eventos
+
+### Standalone Components
+
+Todos los componentes son standalone (no requieren NgModule), siguiendo las mejores prácticas de Angular moderno.
+
+### Lazy Loading
+
+Las rutas usan lazy loading para optimizar el tamaño del bundle inicial.
+
+## 🐛 Troubleshooting
+
+### El backend no responde
+
+Verifica que el backend esté corriendo en `http://localhost:8080` y que CORS esté habilitado.
+
+### Error de autenticación
+
+Limpia el localStorage y vuelve a iniciar sesión:
+
+```javascript
+localStorage.clear();
+```
+
+### El QR no se muestra
+
+Verifica que el backend esté devolviendo el QR en formato Base64.
+
+## 📄 Licencia
+
+Este proyecto es parte de la práctica DevOps de AeroPuerto Smart.
+
+## 👥 Equipo
+
+Desarrollado para AeroPuerto Smart - Modernización de procesos tecnológicos.

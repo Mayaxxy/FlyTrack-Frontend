@@ -1,0 +1,146 @@
+<nav class="admin-navbar">
+  <div class="admin-nav-inner">
+    <div class="brand">
+      <span class="brand-icon">✈</span>
+      <div>
+        <span class="brand-name">FlyTrack</span>
+        <span class="brand-role">Panel de Administración</span>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <span class="admin-badge">👤 Admin</span>
+    </div>
+  </div>
+</nav>
+
+<div class="admin-container">
+
+  <div class="admin-header">
+    <div>
+      <h1>Gestión de Vuelos</h1>
+      <p>Crea y administra los vuelos del aeropuerto</p>
+    </div>
+    <button class="btn-new" (click)="showForm.update(v => !v)">
+      @if (showForm()) { ✕ Cancelar } @else { + Nuevo Vuelo }
+    </button>
+  </div>
+
+  @if (success()) {
+    <div class="alert-success">✓ {{ success() }}</div>
+  }
+  @if (error()) {
+    <div class="alert-error">⚠ {{ error() }}</div>
+  }
+
+  <!-- Formulario nuevo vuelo -->
+  @if (showForm()) {
+    <div class="form-card">
+      <h2>Crear Nuevo Vuelo</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Código de Vuelo <span class="req">*</span></label>
+          <input type="text" [value]="flightCode()" (input)="flightCode.set($any($event.target).value)"
+            placeholder="AV123" maxlength="10" />
+        </div>
+        <div class="form-group">
+          <label>Puerta de Embarque</label>
+          <input type="text" [value]="gate()" (input)="gate.set($any($event.target).value)"
+            placeholder="A12" maxlength="5" />
+        </div>
+        <div class="form-group">
+          <label>Aeropuerto Origen <span class="req">*</span></label>
+          <input type="text" [value]="origin()" (input)="origin.set($any($event.target).value)"
+            placeholder="BOG" maxlength="3" />
+        </div>
+        <div class="form-group">
+          <label>Aeropuerto Destino <span class="req">*</span></label>
+          <input type="text" [value]="destination()" (input)="destination.set($any($event.target).value)"
+            placeholder="MDE" maxlength="3" />
+        </div>
+        <div class="form-group">
+          <label>Fecha y Hora de Salida <span class="req">*</span></label>
+          <input type="datetime-local" [value]="departureTime()"
+            (input)="departureTime.set($any($event.target).value)" />
+        </div>
+        <div class="form-group">
+          <label>Fecha y Hora de Llegada <span class="req">*</span></label>
+          <input type="datetime-local" [value]="arrivalTime()"
+            (input)="arrivalTime.set($any($event.target).value)" />
+        </div>
+      </div>
+      <button class="btn-submit" (click)="onSubmit()" [disabled]="submitting()">
+        @if (submitting()) { Creando... } @else { Crear Vuelo }
+      </button>
+    </div>
+  }
+
+  <!-- Tabla de vuelos -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando vuelos...</p>
+    </div>
+  } @else {
+    <div class="table-card">
+      <div class="table-header">
+        <h2>Vuelos Registrados</h2>
+        <span class="count">{{ flights().length }} vuelos</span>
+      </div>
+
+      @if (flights().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">✈</div>
+          <h3>No hay vuelos registrados</h3>
+          <p>Crea el primer vuelo usando el botón de arriba</p>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Ruta</th>
+                <th>Salida</th>
+                <th>Llegada</th>
+                <th>Puerta</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (flight of flights(); track flight.id) {
+                <tr>
+                  <td class="flight-code-cell">{{ flight.flightCode }}</td>
+                  <td>
+                    <span class="airport">{{ flight.originAirport }}</span>
+                    <span class="arrow"> → </span>
+                    <span class="airport">{{ flight.destinationAirport }}</span>
+                  </td>
+                  <td class="time-cell">{{ flight.departureTime | date:'dd/MM HH:mm' }}</td>
+                  <td class="time-cell">{{ flight.arrivalTime | date:'dd/MM HH:mm' }}</td>
+                  <td>{{ flight.gate || '—' }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusClass(flight.status)">
+                      {{ getStatusLabel(flight.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <select class="status-select" (change)="updateStatus(flight.flightCode, $any($event.target).value)">
+                      <option value="">Cambiar estado</option>
+                      <option value="SCHEDULED">Programado</option>
+                      <option value="DELAYED">Retrasado</option>
+                      <option value="BOARDING">Abordando</option>
+                      <option value="DEPARTED">Despegado</option>
+                      <option value="ARRIVED">Llegado</option>
+                      <option value="CANCELLED">Cancelado</option>
+                    </select>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</div>

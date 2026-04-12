@@ -1,0 +1,163 @@
+<app-navbar></app-navbar>
+
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="avatar-large">
+      @if (user()) {
+        {{ user().firstName[0] }}{{ user().lastName[0] }}
+      }
+    </div>
+    <div>
+      <h1>{{ user()?.firstName }} {{ user()?.lastName }}</h1>
+      <p>{{ user()?.email }}</p>
+    </div>
+  </div>
+
+  <div class="profile-tabs">
+    <button class="tab-btn" [class.active]="activeTab() === 'info'" (click)="activeTab.set('info')">
+      👤 Información Personal
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'password'" (click)="activeTab.set('password')">
+      🔒 Cambiar Contraseña
+    </button>
+  </div>
+
+  @if (success()) {
+    <div class="alert-success">✓ {{ success() }}</div>
+  }
+  @if (error()) {
+    <div class="alert-error">⚠ {{ error() }}</div>
+  }
+
+  <!-- Info personal -->
+  @if (activeTab() === 'info') {
+    <div class="profile-card">
+      <h2>Datos Personales</h2>
+
+      <div class="readonly-grid">
+        <div class="form-group">
+          <label>Tipo de Documento</label>
+          <select [value]="docType()" (change)="docType.set($any($event.target).value)">
+            <option value="">Seleccionar...</option>
+            <option value="CC">Cédula de Ciudadanía</option>
+            <option value="PASSPORT">Pasaporte</option>
+            <option value="CE">Cédula de Extranjería</option>
+          </select>
+        </div>
+        <div class="readonly-group">
+          <label>Número de Documento</label>
+          <span class="readonly-value">{{ user()?.documentId }}</span>
+        </div>
+        <div class="readonly-group">
+          <label>Correo Electrónico</label>
+          <span class="readonly-value">{{ user()?.email }}</span>
+        </div>
+        <div class="form-group">
+          <label>Fecha de Nacimiento</label>
+          <input type="date" [value]="birthDate()" (input)="birthDate.set($any($event.target).value)" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Primer Nombre</label>
+          <input type="text" [value]="firstName()" (input)="firstName.set($any($event.target).value)" maxlength="50" />
+        </div>
+        <div class="form-group">
+          <label>Segundo Nombre</label>
+          <input type="text" [value]="middleName()" (input)="middleName.set($any($event.target).value)" maxlength="50" placeholder="Opcional" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Primer Apellido</label>
+          <input type="text" [value]="lastName()" (input)="lastName.set($any($event.target).value)" maxlength="50" />
+        </div>
+        <div class="form-group">
+          <label>Segundo Apellido</label>
+          <input type="text" [value]="secondLastName()" (input)="secondLastName.set($any($event.target).value)" maxlength="50" placeholder="Opcional" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Teléfono</label>
+        <div class="phone-input-wrapper">
+          <select [value]="phoneCountry()" (change)="phoneCountry.set($any($event.target).value)">
+            @for (country of countries; track country.code) {
+              <option [value]="country.code">{{ country.flag }} {{ country.code }}</option>
+            }
+          </select>
+          <input 
+            type="tel" 
+            [value]="phoneDisplay()" 
+            (input)="onPhoneInput($event)" 
+            [placeholder]="'Ingresa ' + selectedCountry().digits + ' dígitos'"
+            maxlength="20"
+          />
+        </div>
+      </div>
+
+      <button class="btn-save" (click)="saveInfo()" [disabled]="loading()">
+        @if (loading()) { Guardando... } @else { Guardar Cambios }
+      </button>
+    </div>
+  }
+
+  <!-- Cambiar contraseña -->
+  @if (activeTab() === 'password') {
+    <div class="profile-card">
+      <h2>Cambiar Contraseña</h2>
+
+      <div class="form-group">
+        <label>Contraseña Actual</label>
+        <div class="input-wrapper">
+          <input [type]="showCurrentPwd() ? 'text' : 'password'"
+            [value]="currentPassword()"
+            (input)="currentPassword.set($any($event.target).value)"
+            placeholder="••••••••" />
+          <button type="button" class="toggle-pwd" (click)="showCurrentPwd.update(v => !v)">
+            {{ showCurrentPwd() ? '🙈' : '👁' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Nueva Contraseña</label>
+        <div class="input-wrapper">
+          <input [type]="showNewPwd() ? 'text' : 'password'"
+            [value]="newPassword()"
+            (input)="newPassword.set($any($event.target).value)"
+            placeholder="••••••••" />
+          <button type="button" class="toggle-pwd" (click)="showNewPwd.update(v => !v)">
+            {{ showNewPwd() ? '🙈' : '👁' }}
+          </button>
+        </div>
+        @if (newPassword().length > 0) {
+          <ul class="pwd-rules">
+            <li [class.valid]="passwordRules().length">{{ passwordRules().length ? '✓' : '○' }} Mínimo 8 caracteres</li>
+            <li [class.valid]="passwordRules().uppercase">{{ passwordRules().uppercase ? '✓' : '○' }} Una mayúscula</li>
+            <li [class.valid]="passwordRules().lowercase">{{ passwordRules().lowercase ? '✓' : '○' }} Una minúscula</li>
+            <li [class.valid]="passwordRules().number">{{ passwordRules().number ? '✓' : '○' }} Un número</li>
+            <li [class.valid]="passwordRules().special">{{ passwordRules().special ? '✓' : '○' }} Un carácter especial</li>
+          </ul>
+        }
+      </div>
+
+      <div class="form-group">
+        <label>Confirmar Nueva Contraseña</label>
+        <input type="password"
+          [value]="confirmPassword()"
+          (input)="confirmPassword.set($any($event.target).value)"
+          placeholder="••••••••"
+          [class.input-error]="confirmPassword().length > 0 && confirmPassword() !== newPassword()" />
+        @if (confirmPassword().length > 0 && confirmPassword() !== newPassword()) {
+          <p class="field-error">Las contraseñas no coinciden</p>
+        }
+      </div>
+
+      <button class="btn-save" (click)="savePassword()" [disabled]="loading()">
+        @if (loading()) { Guardando... } @else { Cambiar Contraseña }
+      </button>
+    </div>
+  }
+</div>

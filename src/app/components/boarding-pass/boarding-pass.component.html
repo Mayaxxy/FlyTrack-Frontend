@@ -1,0 +1,88 @@
+<app-navbar></app-navbar>
+
+<div class="boarding-pass-container">
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando pase de abordaje...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-container">
+      <p>{{ error() }}</p>
+      <button class="btn-primary" (click)="goToDashboard()">
+        Volver a Vuelos
+      </button>
+    </div>
+  }
+
+  @if (!loading() && !error() && boardingPass(); as bp) {
+    <div class="boarding-pass-card">
+      <div class="pass-header">
+        <h1>Pase de Abordaje</h1>
+        <p class="airline">AeroPuerto Smart</p>
+      </div>
+
+      <div class="passenger-info">
+        <div class="info-section">
+          <span class="label">Pasajero</span>
+          <span class="value">{{ bp.passengerName }}</span>
+        </div>
+      </div>
+
+      <div class="flight-info">
+        <div class="info-section">
+          <span class="label">Vuelo</span>
+          <span class="value large">{{ bp.flightCode }}</span>
+        </div>
+
+        <div class="info-section">
+          <span class="label">Asiento</span>
+          <span class="value large">{{ bp.seatNumber }}</span>
+        </div>
+
+        <div class="info-section">
+          <span class="label">Puerta</span>
+          <span class="value large gate">{{ bp.gate }}</span>
+        </div>
+      </div>
+
+      <div class="departure-info">
+        <div class="info-section">
+          <span class="label">Fecha de Salida</span>
+          <span class="value">{{ formatDate(bp.departureTime) }}</span>
+        </div>
+
+        <div class="info-section">
+          <span class="label">Hora de Salida</span>
+          <span class="value">{{ formatTime(bp.departureTime) }}</span>
+        </div>
+      </div>
+
+      @if (timeUntilExpiry()) {
+        <div class="expiry-warning">
+          ⚠️ {{ timeUntilExpiry() }}
+        </div>
+      }
+
+      <div class="qr-section">
+        <p class="qr-label">Código QR de Abordaje</p>
+        @if (qrCodeUrl()) {
+          <img [src]="qrCodeUrl()" alt="QR Code" class="qr-code" />
+        }
+        <p class="qr-info">Este código se actualiza automáticamente cada 45 segundos</p>
+        <button class="btn-refresh" (click)="manualRefresh()">
+          🔄 Actualizar QR
+        </button>
+      </div>
+
+      <div class="pass-footer">
+        <p class="footer-text">Presente este código en la puerta de embarque</p>
+        <button class="btn-secondary" (click)="goToDashboard()">
+          Volver a Vuelos
+        </button>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,61 @@
+<div class="flight-card">
+  <div class="flight-header">
+    <h3 class="flight-code">{{ flight.flightCode }}</h3>
+    <span class="status-badge" [ngClass]="getStatusClass()">
+      {{ getStatusText() }}
+    </span>
+  </div>
+
+  <div class="flight-route">
+    <div class="airport">
+      <div class="airport-code">{{ flight.originAirport }}</div>
+      <div class="label">Origen</div>
+    </div>
+
+    <div class="route-arrow">
+      <svg width="40" height="24" viewBox="0 0 40 24">
+        <path d="M0 12 L35 12 M25 4 L35 12 L25 20" stroke="currentColor" fill="none" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <div class="airport">
+      <div class="airport-code">{{ flight.destinationAirport }}</div>
+      <div class="label">Destino</div>
+    </div>
+  </div>
+
+  <div class="flight-details">
+    <div class="detail-item">
+      <span class="detail-label">Salida</span>
+      <span class="detail-value">{{ formatTime(flight.departureTime) }}</span>
+      <span class="detail-date">{{ formatDate(flight.departureTime) }}</span>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-label">Llegada</span>
+      <span class="detail-value">{{ formatTime(flight.arrivalTime) }}</span>
+      <span class="detail-date">{{ formatDate(flight.arrivalTime) }}</span>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-label">Puerta</span>
+      <span class="detail-value gate">{{ flight.gate }}</span>
+    </div>
+  </div>
+
+  <div class="flight-actions">
+    @if (canCheckIn()) {
+      <button class="btn-checkin" (click)="goToCheckIn()">
+        Hacer Check-In
+      </button>
+    } @else if (flight.status === 'CANCELLED') {
+      <div class="info-message cancelled">
+        Vuelo cancelado
+      </div>
+    } @else {
+      <div class="info-message">
+        Check-in no disponible
+      </div>
+    }
+  </div>
+</div>

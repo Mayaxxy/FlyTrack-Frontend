@@ -1,0 +1,89 @@
+<app-navbar></app-navbar>
+
+<div class="checkin-container">
+  @if (!success()) {
+    <div class="checkin-card">
+      <h2>Check-In Digital</h2>
+      <p class="subtitle">Complete los datos para realizar su check-in</p>
+
+      @if (error()) {
+        <div class="error-message">
+          {{ error() }}
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" class="checkin-form">
+        <div class="form-group">
+          <label for="flightCode">Código de Vuelo</label>
+          <input
+            type="text"
+            id="flightCode"
+            [value]="flightCode()"
+            (input)="flightCode.set($any($event.target).value)"
+            placeholder="AV123"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="reservationCode">Código de Reserva</label>
+          <input
+            type="text"
+            id="reservationCode"
+            [value]="reservationCode()"
+            (input)="reservationCode.set($any($event.target).value)"
+            placeholder="ABC123"
+            required
+          />
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="loading()">
+          @if (loading()) {
+            <span>Procesando...</span>
+          } @else {
+            <span>Realizar Check-In</span>
+          }
+        </button>
+
+        <button type="button" class="btn-secondary" (click)="goToDashboard()">
+          Volver a Vuelos
+        </button>
+      </form>
+    </div>
+  } @else {
+    <div class="success-card">
+      <div class="success-icon">✓</div>
+      <h2>¡Check-In Exitoso!</h2>
+      <p>Su check-in ha sido completado correctamente</p>
+
+      @if (boardingPass(); as bp) {
+        <div class="boarding-info">
+          <div class="info-row">
+            <span class="info-label">Vuelo:</span>
+            <span class="info-value">{{ bp.flightCode }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Pasajero:</span>
+            <span class="info-value">{{ bp.passengerName }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Asiento:</span>
+            <span class="info-value">{{ bp.seatNumber }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Puerta:</span>
+            <span class="info-value">{{ bp.gate }}</span>
+          </div>
+        </div>
+
+        <button class="btn-primary" (click)="viewBoardingPass()">
+          Ver Pase de Abordaje
+        </button>
+      }
+
+      <button class="btn-secondary" (click)="goToDashboard()">
+        Volver a Vuelos
+      </button>
+    </div>
+  }
+</div>

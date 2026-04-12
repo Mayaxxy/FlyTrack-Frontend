@@ -1,0 +1,135 @@
+.boarding-pass-container {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: var(--bg);
+}
+
+.boarding-pass-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 480px;
+  overflow: hidden;
+}
+
+/* Header */
+.pass-header {
+  background: var(--primary);
+  color: white;
+  padding: 1.5rem 2rem;
+  text-align: center;
+}
+.pass-header h1 { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.25rem; }
+.pass-header .airline { font-size: 0.8rem; opacity: 0.7; }
+
+/* Sections */
+.passenger-info, .flight-info, .departure-info {
+  padding: 1.25rem 2rem;
+  border-bottom: 1px dashed var(--border);
+}
+
+.flight-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  background: #f8f9fc;
+}
+
+.departure-info { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.info-section { display: flex; flex-direction: column; gap: 0.25rem; }
+
+.label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.value.large { font-size: 1.4rem; }
+.value.gate { color: var(--accent); }
+
+/* Expiry warning */
+.expiry-warning {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.75rem 2rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-bottom: 1px dashed var(--border);
+}
+
+/* QR */
+.qr-section {
+  padding: 1.5rem 2rem;
+  text-align: center;
+  border-bottom: 1px dashed var(--border);
+}
+
+.qr-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.qr-code {
+  width: 180px;
+  height: 180px;
+  border: 3px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.5rem;
+  background: white;
+}
+
+.qr-info { font-size: 0.75rem; color: var(--text-muted); margin: 0.75rem 0; }
+
+.btn-refresh {
+  background: #f0f2f7; color: var(--primary);
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 0.5rem 1.25rem; font-size: 0.85rem; font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-refresh:hover { border-color: var(--primary); background: white; }
+
+/* Footer */
+.pass-footer {
+  padding: 1.25rem 2rem;
+  text-align: center;
+}
+.footer-text { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; }
+
+.btn-secondary {
+  background: white; color: var(--primary);
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 0.75rem 1.5rem; font-weight: 600; font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+.btn-secondary:hover { border-color: var(--primary); }
+
+/* States */
+.loading-container { display: flex; flex-direction: column; align-items: center; padding: 4rem; gap: 1rem; color: var(--text-muted); }
+.spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-container { text-align: center; padding: 2rem; background: #fff1f2; border: 1px solid #fecdd3; border-radius: var(--radius); color: var(--accent); max-width: 480px; }
+.btn-primary { background: var(--primary); color: white; border: none; border-radius: var(--radius); padding: 0.75rem 1.5rem; font-weight: 700; margin-top: 1rem; }
+
+@media (max-width: 480px) {
+  .flight-info { grid-template-columns: 1fr 1fr; }
+  .pass-header, .passenger-info, .flight-info, .departure-info, .qr-section, .pass-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+}

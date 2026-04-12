@@ -1,0 +1,66 @@
+<app-navbar></app-navbar>
+
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Mis Vuelos</h1>
+    <p>Consulta y gestiona tus vuelos próximos</p>
+  </div>
+
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="origin">Origen</label>
+      <input
+        type="text"
+        id="origin"
+        [value]="originFilter()"
+        (input)="onOriginFilterChange($any($event.target).value)"
+        placeholder="Buscar por origen..."
+      />
+    </div>
+
+    <div class="filter-group">
+      <label for="destination">Destino</label>
+      <input
+        type="text"
+        id="destination"
+        [value]="destinationFilter()"
+        (input)="onDestinationFilterChange($any($event.target).value)"
+        placeholder="Buscar por destino..."
+      />
+    </div>
+
+    @if (originFilter() || destinationFilter()) {
+      <button class="btn-clear" (click)="clearFilters()">
+        Limpiar Filtros
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando vuelos...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-container">
+      <p>{{ error() }}</p>
+      <button class="btn-retry" (click)="loadFlights()">Reintentar</button>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="flights-grid">
+      @if (filteredFlights().length === 0) {
+        <div class="no-flights">
+          <p>No se encontraron vuelos</p>
+        </div>
+      }
+
+      @for (flight of filteredFlights(); track flight.id) {
+        <app-flight-card [flight]="flight"></app-flight-card>
+      }
+    </div>
+  }
+</div>

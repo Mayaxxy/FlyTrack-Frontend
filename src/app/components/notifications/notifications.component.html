@@ -1,0 +1,58 @@
+<app-navbar></app-navbar>
+
+<div class="notifications-container">
+  <div class="notifications-header">
+    <h1>Notificaciones</h1>
+    <p>Mantente informado sobre cambios en tus vuelos</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando notificaciones...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-container">
+      <p>{{ error() }}</p>
+      <button class="btn-retry" (click)="loadNotifications()">Reintentar</button>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="notifications-list">
+      @if (notifications().length === 0) {
+        <div class="no-notifications">
+          <p>No tienes notificaciones</p>
+        </div>
+      }
+
+      @for (notification of notifications(); track notification.id) {
+        <div 
+          class="notification-card"
+          [class.unread]="!notification.read"
+          [ngClass]="getNotificationClass(notification.type)"
+          (click)="markAsRead(notification)"
+        >
+          <div class="notification-icon">
+            {{ getNotificationIcon(notification.type) }}
+          </div>
+
+          <div class="notification-content">
+            <div class="notification-header">
+              <span class="flight-code">{{ notification.flightCode }}</span>
+              <span class="notification-time">{{ formatTime(notification.createdAt) }}</span>
+            </div>
+
+            <p class="notification-message">{{ notification.message }}</p>
+
+            @if (!notification.read) {
+              <span class="unread-indicator">●</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,129 @@
+<div class="login-page">
+
+  <!-- Left: Hero -->
+  <div class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="brand">
+        <span class="brand-accent">✈</span>
+        <span class="brand-name">FlyTrack</span>
+      </div>
+      <h1 class="hero-title">
+        ¿A DÓNDE<br>QUIERES<br><strong>VOLAR?</strong>
+      </h1>
+      <p class="hero-subtitle">AeroPuerto Smart — Tu viaje, bajo control.</p>
+    </div>
+  </div>
+
+  <!-- Right: Form -->
+  <div class="form-section">
+    <div class="form-wrapper">
+      <div class="form-header">
+        <h2>Iniciar Sesión</h2>
+        <p>Accede a tu cuenta para gestionar tus vuelos</p>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="login-form">
+
+        @if (error()) {
+          <div class="error-message">
+            <span>⚠</span> {{ error() }}
+          </div>
+        }
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Correo Electrónico</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✉</span>
+            <input
+              type="email"
+              id="email"
+              [value]="email()"
+              (input)="email.set($any($event.target).value)"
+              placeholder="correo@ejemplo.com"
+              [class.input-error]="email().length > 0 && !isEmailValid()"
+              required
+            />
+          </div>
+          @if (email().length > 0 && !isEmailValid()) {
+            <p class="field-error">Ingresa un correo electrónico válido (ej: usuario&#64;dominio.com)</p>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              id="password"
+              [value]="password()"
+              (input)="password.set($any($event.target).value)"
+              placeholder="••••••••"
+              required
+            />
+            <button type="button" class="toggle-password" (click)="togglePassword()">
+              {{ showPassword() ? '🙈' : '👁' }}
+            </button>
+          </div>
+
+          <!-- Strength bar -->
+          @if (password().length > 0) {
+            <div class="strength-bar">
+              <div class="strength-track">
+                <div class="strength-fill" [class]="passwordStrength()"></div>
+              </div>
+              <span class="strength-label" [class]="passwordStrength()">
+                @switch (passwordStrength()) {
+                  @case ('weak')   { Débil }
+                  @case ('fair')   { Regular }
+                  @case ('good')   { Buena }
+                  @case ('strong') { Segura ✓ }
+                }
+              </span>
+            </div>
+
+            <!-- Rules checklist -->
+            <ul class="password-rules">
+              <li [class.valid]="passwordRules().length">
+                <span class="rule-icon">{{ passwordRules().length ? '✓' : '○' }}</span>
+                Mínimo 8 caracteres
+              </li>
+              <li [class.valid]="passwordRules().uppercase">
+                <span class="rule-icon">{{ passwordRules().uppercase ? '✓' : '○' }}</span>
+                Una letra mayúscula
+              </li>
+              <li [class.valid]="passwordRules().lowercase">
+                <span class="rule-icon">{{ passwordRules().lowercase ? '✓' : '○' }}</span>
+                Una letra minúscula
+              </li>
+              <li [class.valid]="passwordRules().number">
+                <span class="rule-icon">{{ passwordRules().number ? '✓' : '○' }}</span>
+                Un número
+              </li>
+              <li [class.valid]="passwordRules().special">
+                <span class="rule-icon">{{ passwordRules().special ? '✓' : '○' }}</span>
+                Un carácter especial (!&#64;#$...)
+              </li>
+            </ul>
+          }
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="loading()">
+          @if (loading()) {
+            <span>Iniciando sesión...</span>
+          } @else {
+            <span>Iniciar Sesión →</span>
+          }
+        </button>
+
+        <p class="register-link">
+          ¿No tienes cuenta? <a routerLink="/register">Regístrate aquí</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+</div>

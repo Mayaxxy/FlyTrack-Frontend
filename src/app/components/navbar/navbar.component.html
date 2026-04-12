@@ -1,0 +1,46 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <a routerLink="/dashboard" class="navbar-brand">
+      <span class="brand-icon">✈</span>
+      <div>
+        <span class="brand-name">FlyTrack</span>
+        <span class="brand-sub">AeroPuerto Smart</span>
+      </div>
+    </a>
+
+    <button class="mobile-menu-btn" (click)="toggleMobileMenu()" [class.open]="showMobileMenu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="navbar-menu" [class.active]="showMobileMenu">
+      @if (currentUser$ | async; as user) {
+        @if (user.role === 'ADMIN') {
+          <a routerLink="/admin" routerLinkActive="active" class="nav-link">
+            ⚙ Panel Admin
+          </a>
+        } @else {
+          <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+            ✈ Vuelos
+          </a>
+          <a routerLink="/notifications" routerLinkActive="active" class="nav-link">
+            🔔 Notificaciones
+            @if (notificationService.unreadCount() > 0) {
+              <span class="nav-badge">{{ notificationService.unreadCount() }}</span>
+            }
+          </a>
+          <a routerLink="/baggage" routerLinkActive="active" class="nav-link">
+            🧳 Equipaje
+          </a>
+        }
+
+        <div class="user-section">
+          <a routerLink="/profile" class="user-avatar" title="Mi perfil">
+            {{ user.firstName[0] }}{{ user.lastName[0] }}
+          </a>
+          <span class="user-name">{{ user.firstName }}</span>
+          <button class="btn-logout" (click)="logout()">Salir</button>
+        </div>
+      }
+    </div>
+  </div>
+</nav>
