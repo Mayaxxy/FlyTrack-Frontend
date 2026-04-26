@@ -143,4 +143,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         return status;
     }
   }
+
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
+  goToAdmin(): void {
+    this.router.navigate(['/admin']);
+  }
 }

@@ -1,8 +1,31 @@
 .dashboard-container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-.dashboard-header { margin-bottom: 2rem; }
+.dashboard-header { 
+  margin-bottom: 2rem; 
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
 .dashboard-header h1 { font-size: 1.75rem; font-weight: 800; color: var(--primary); margin-bottom: 0.25rem; }
 .dashboard-header p { color: var(--text-muted); font-size: 0.95rem; }
+
+.btn-create-flight {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.75rem 1.5rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-create-flight:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
 
 .filters-section {
   display: flex;

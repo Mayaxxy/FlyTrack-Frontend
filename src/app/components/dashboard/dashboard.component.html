@@ -2,8 +2,15 @@
 
 <div class="dashboard-container">
   <div class="dashboard-header">
-    <h1>Mis Vuelos</h1>
-    <p>Consulta y gestiona tus vuelos próximos</p>
+    <div>
+      <h1>Mis Vuelos</h1>
+      <p>Consulta y gestiona tus vuelos próximos</p>
+    </div>
+    @if (isAdmin()) {
+      <button class="btn-create-flight" (click)="goToAdmin()">
+        + Crear Vuelo
+      </button>
+    }
   </div>
 
   <div class="filters-section">
