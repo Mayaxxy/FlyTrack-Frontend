@@ -41,32 +41,57 @@
         <div class="form-group">
           <label>Código de Vuelo <span class="req">*</span></label>
           <input type="text" [value]="flightCode()" (input)="flightCode.set($any($event.target).value)"
-            placeholder="AV123" maxlength="10" />
+            placeholder="AV123" maxlength="6" [class.error]="flightCodeError()" />
+          @if (flightCodeError()) {
+            <span class="field-error">{{ flightCodeError() }}</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>Aeropuerto Origen <span class="req">*</span></label>
+          <input type="text" [value]="origin()" (input)="origin.set($any($event.target).value)"
+            placeholder="BOG" maxlength="3" [class.error]="originError()" />
+          @if (originError()) {
+            <span class="field-error">{{ originError() }}</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>Aeropuerto Destino <span class="req">*</span></label>
+          <input type="text" [value]="destination()" (input)="destination.set($any($event.target).value)"
+            placeholder="MDE" maxlength="3" [class.error]="destinationError()" />
+          @if (destinationError()) {
+            <span class="field-error">{{ destinationError() }}</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>Fecha de Salida <span class="req">*</span></label>
+          <input type="date" [value]="departureDate()"
+            (input)="departureDate.set($any($event.target).value)" [class.error]="departureDateError()" />
+          @if (departureDateError()) {
+            <span class="field-error">{{ departureDateError() }}</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>Hora de Salida <span class="req">*</span></label>
+          <input type="time" [value]="departureTime()"
+            (input)="departureTime.set($any($event.target).value)" [class.error]="departureDateError()" />
+        </div>
+        <div class="form-group">
+          <label>Fecha de Llegada <span class="req">*</span></label>
+          <input type="date" [value]="arrivalDate()"
+            (input)="arrivalDate.set($any($event.target).value)" [class.error]="arrivalDateError()" />
+          @if (arrivalDateError()) {
+            <span class="field-error">{{ arrivalDateError() }}</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>Hora de Llegada <span class="req">*</span></label>
+          <input type="time" [value]="arrivalTime()"
+            (input)="arrivalTime.set($any($event.target).value)" [class.error]="arrivalDateError()" />
         </div>
         <div class="form-group">
           <label>Puerta de Embarque</label>
           <input type="text" [value]="gate()" (input)="gate.set($any($event.target).value)"
             placeholder="A12" maxlength="5" />
-        </div>
-        <div class="form-group">
-          <label>Aeropuerto Origen <span class="req">*</span></label>
-          <input type="text" [value]="origin()" (input)="origin.set($any($event.target).value)"
-            placeholder="BOG" maxlength="3" />
-        </div>
-        <div class="form-group">
-          <label>Aeropuerto Destino <span class="req">*</span></label>
-          <input type="text" [value]="destination()" (input)="destination.set($any($event.target).value)"
-            placeholder="MDE" maxlength="3" />
-        </div>
-        <div class="form-group">
-          <label>Fecha y Hora de Salida <span class="req">*</span></label>
-          <input type="datetime-local" [value]="departureTime()"
-            (input)="departureTime.set($any($event.target).value)" />
-        </div>
-        <div class="form-group">
-          <label>Fecha y Hora de Llegada <span class="req">*</span></label>
-          <input type="datetime-local" [value]="arrivalTime()"
-            (input)="arrivalTime.set($any($event.target).value)" />
         </div>
       </div>
       <button class="btn-submit" (click)="onSubmit()" [disabled]="submitting()">

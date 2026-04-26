@@ -28,10 +28,19 @@ export class AdminComponent implements OnInit {
   flightCode   = signal('');
   origin       = signal('');
   destination  = signal('');
+  departureDate = signal('');
   departureTime = signal('');
+  arrivalDate  = signal('');
   arrivalTime  = signal('');
   gate         = signal('');
   submitting   = signal(false);
+
+  // Field errors
+  flightCodeError = signal('');
+  originError = signal('');
+  destinationError = signal('');
+  departureDateError = signal('');
+  arrivalDateError = signal('');
 
   ngOnInit(): void {
     // Verificar que sea admin
@@ -54,29 +63,70 @@ export class AdminComponent implements OnInit {
   onSubmit(): void {
     this.error.set('');
     this.success.set('');
+    this.clearFieldErrors();
 
-    if (!this.flightCode() || !this.origin() || !this.destination() || !this.departureTime() || !this.arrivalTime()) {
-      this.error.set('Completa todos los campos obligatorios');
+    // Validar campos
+    let hasErrors = false;
+
+    if (!this.flightCode()) {
+      this.flightCodeError.set('El código de vuelo es obligatorio');
+      hasErrors = true;
+    } else if (!/^[A-Z]{2}[0-9]{3,4}$/.test(this.flightCode().toUpperCase())) {
+      this.flightCodeError.set('Formato inválido (ej: AV123)');
+      hasErrors = true;
+    }
+
+    if (!this.origin()) {
+      this.originError.set('El origen es obligatorio');
+      hasErrors = true;
+    } else if (this.origin().length !== 3) {
+      this.originError.set('Debe tener 3 letras (ej: BOG)');
+      hasErrors = true;
+    }
+
+    if (!this.destination()) {
+      this.destinationError.set('El destino es obligatorio');
+      hasErrors = true;
+    } else if (this.destination().length !== 3) {
+      this.destinationError.set('Debe tener 3 letras (ej: MDE)');
+      hasErrors = true;
+    }
+
+    if (!this.departureDate() || !this.departureTime()) {
+      this.departureDateError.set('Fecha y hora de salida obligatorias');
+      hasErrors = true;
+    }
+
+    if (!this.arrivalDate() || !this.arrivalTime()) {
+      this.arrivalDateError.set('Fecha y hora de llegada obligatorias');
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
 
+    // Combinar fecha y hora
+    const departureDateTime = `${this.departureDate()}T${this.departureTime()}`;
+    const arrivalDateTime = `${this.arrivalDate()}T${this.arrivalTime()}`;
+
     // Validar que las fechas no sean en el pasado
     const now = new Date();
-    const departure = new Date(this.departureTime());
-    const arrival = new Date(this.arrivalTime());
+    const departure = new Date(departureDateTime);
+    const arrival = new Date(arrivalDateTime);
 
     if (departure < now) {
-      this.error.set('La fecha de salida no puede ser en el pasado');
+      this.departureDateError.set('La fecha de salida no puede ser en el pasado');
       return;
     }
 
     if (arrival < now) {
-      this.error.set('La fecha de llegada no puede ser en el pasado');
+      this.arrivalDateError.set('La fecha de llegada no puede ser en el pasado');
       return;
     }
 
     if (arrival <= departure) {
-      this.error.set('La fecha de llegada debe ser posterior a la fecha de salida');
+      this.arrivalDateError.set('Debe ser posterior a la fecha de salida');
       return;
     }
 
@@ -86,8 +136,8 @@ export class AdminComponent implements OnInit {
       flightCode:        this.flightCode().toUpperCase().trim(),
       originAirport:     this.origin().toUpperCase().trim(),
       destinationAirport: this.destination().toUpperCase().trim(),
-      departureTime:     this.departureTime(),
-      arrivalTime:       this.arrivalTime(),
+      departureTime:     departureDateTime,
+      arrivalTime:       arrivalDateTime,
       gate:              this.gate().trim() || undefined
     };
 
@@ -101,7 +151,7 @@ export class AdminComponent implements OnInit {
       },
       error: (err) => {
         this.submitting.set(false);
-        const errorMsg = err.error?.errors?.flightCode || err.error?.message || 'Error al crear el vuelo';
+        const errorMsg = err.error?.errors?.flightCode || err.error?.message || 'Error al crear el vuelo. Verifica que el backend esté corriendo.';
         this.error.set(errorMsg);
       }
     });
@@ -117,9 +167,20 @@ export class AdminComponent implements OnInit {
     this.flightCode.set('');
     this.origin.set('');
     this.destination.set('');
+    this.departureDate.set('');
     this.departureTime.set('');
+    this.arrivalDate.set('');
     this.arrivalTime.set('');
     this.gate.set('');
+    this.clearFieldErrors();
+  }
+
+  private clearFieldErrors(): void {
+    this.flightCodeError.set('');
+    this.originError.set('');
+    this.destinationError.set('');
+    this.departureDateError.set('');
+    this.arrivalDateError.set('');
   }
 
   getStatusLabel(status: string): string {
