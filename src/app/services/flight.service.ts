@@ -21,4 +21,21 @@ export class FlightService {
   getFlightsByDestination(destination: string): Observable<Flight[]> {
     return this.http.get<Flight[]>(`${environment.apiUrl}/flights/public/destination/${destination}`);
   }
+
+  createFlight(flightData: CreateFlightRequest): Observable<Flight> {
+    return this.http.post<Flight>(`${environment.apiUrl}/flights`, flightData);
+  }
+
+  getAllFlights(): Observable<Flight[]> {
+    return this.http.get<Flight[]>(`${environment.apiUrl}/flights/public/upcoming`);
+  }
+}
+
+export interface CreateFlightRequest {
+  flightCode: string;
+  originAirport: string;
+  destinationAirport: string;
+  departureTime: string;
+  arrivalTime: string;
+  gate?: string;
 }

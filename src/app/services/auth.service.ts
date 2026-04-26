@@ -14,7 +14,16 @@ export class AuthService {
 
   private getUserFromStorage(): Passenger | null {
     const user = localStorage.getItem('currentUser');
-    return user ? JSON.parse(user) : null;
+    if (!user || user === 'undefined' || user === 'null') {
+      return null;
+    }
+    try {
+      return JSON.parse(user);
+    } catch (error) {
+      console.error('Error parsing user from localStorage:', error);
+      localStorage.removeItem('currentUser');
+      return null;
+    }
   }
 
   register(request: RegisterRequest): Observable<AuthResponse> {
@@ -65,13 +74,6 @@ export class AuthService {
 
   isAdmin(): boolean {
     return this.currentUserSubject.value?.role === 'ADMIN';
-  }
-
-  refreshToken(): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/refresh`, {})
-      .pipe(
-        tap(response => this.handleAuthResponse(response))
-      );
   }
 
   private handleAuthResponse(response: AuthResponse): void {
