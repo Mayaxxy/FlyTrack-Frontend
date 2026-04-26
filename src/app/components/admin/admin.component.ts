@@ -60,6 +60,26 @@ export class AdminComponent implements OnInit {
       return;
     }
 
+    // Validar que las fechas no sean en el pasado
+    const now = new Date();
+    const departure = new Date(this.departureTime());
+    const arrival = new Date(this.arrivalTime());
+
+    if (departure < now) {
+      this.error.set('La fecha de salida no puede ser en el pasado');
+      return;
+    }
+
+    if (arrival < now) {
+      this.error.set('La fecha de llegada no puede ser en el pasado');
+      return;
+    }
+
+    if (arrival <= departure) {
+      this.error.set('La fecha de llegada debe ser posterior a la fecha de salida');
+      return;
+    }
+
     this.submitting.set(true);
 
     const payload = {
