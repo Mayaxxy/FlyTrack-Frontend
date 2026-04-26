@@ -14,6 +14,21 @@
 .brand-icon { font-size: 1.4rem; color: var(--accent); }
 .brand-name { display: block; font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; line-height: 1; }
 .brand-role { display: block; font-size: 0.7rem; opacity: 0.6; letter-spacing: 0.5px; }
+.nav-actions { display: flex; align-items: center; gap: 1rem; }
+.btn-back {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-back:hover {
+  background: rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.3);
+}
 .admin-badge { background: rgba(227,6,19,0.2); color: #ff6b7a; border: 1px solid rgba(227,6,19,0.3); padding: 0.4rem 0.875rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
 
 /* Container */

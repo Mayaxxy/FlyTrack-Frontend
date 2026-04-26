@@ -119,4 +119,8 @@ export class AdminComponent implements OnInit {
     };
     return map[status] || 'badge-default';
   }
+
+  goToDashboard(): void {
+    this.router.navigate(['/dashboard']);
+  }
 }
