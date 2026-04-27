@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Flight } from '../models/flight.model';
+import { Flight, Airplane } from '../models/flight.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -27,7 +27,23 @@ export class FlightService {
   }
 
   getAllFlights(): Observable<Flight[]> {
-    return this.http.get<Flight[]>(`${environment.apiUrl}/flights/public/upcoming`);
+    return this.http.get<Flight[]>(`${environment.apiUrl}/flights`);
+  }
+
+  getAvailableAirplanes(): Observable<Airplane[]> {
+    return this.http.get<Airplane[]>(`${environment.apiUrl}/airplanes/available`);
+  }
+
+  getAllAirplanes(): Observable<Airplane[]> {
+    return this.http.get<Airplane[]>(`${environment.apiUrl}/airplanes`);
+  }
+
+  createAirplane(airplaneData: any): Observable<Airplane> {
+    return this.http.post<Airplane>(`${environment.apiUrl}/airplanes`, airplaneData);
+  }
+
+  updateFlightStatus(flightCode: string, status: string): Observable<Flight> {
+    return this.http.put<Flight>(`${environment.apiUrl}/flights/${flightCode}/status?status=${status}`, {});
   }
 }
 
@@ -38,4 +54,5 @@ export interface CreateFlightRequest {
   departureTime: string;
   arrivalTime: string;
   gate?: string;
+  airplaneId?: number;
 }

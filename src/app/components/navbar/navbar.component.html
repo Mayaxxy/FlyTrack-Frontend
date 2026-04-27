@@ -1,12 +1,24 @@
 <nav class="navbar">
   <div class="navbar-container">
-    <a routerLink="/dashboard" class="navbar-brand">
-      <span class="brand-icon">✈</span>
-      <div>
-        <span class="brand-name">FlyTrack</span>
-        <span class="brand-sub">AeroPuerto Smart</span>
-      </div>
-    </a>
+    @if (currentUser$ | async; as user) {
+      @if (user.role === 'ADMIN') {
+        <a [routerLink]="['/admin']" [queryParams]="{tab: 'flights'}" class="navbar-brand">
+          <span class="brand-icon">✈</span>
+          <div>
+            <span class="brand-name">FlyTrack</span>
+            <span class="brand-sub">AeroPuerto Smart</span>
+          </div>
+        </a>
+      } @else {
+        <a routerLink="/dashboard" class="navbar-brand">
+          <span class="brand-icon">✈</span>
+          <div>
+            <span class="brand-name">FlyTrack</span>
+            <span class="brand-sub">AeroPuerto Smart</span>
+          </div>
+        </a>
+      }
+    }
 
     <button class="mobile-menu-btn" (click)="toggleMobileMenu()" [class.open]="showMobileMenu">
       <span></span><span></span><span></span>
@@ -15,8 +27,14 @@
     <div class="navbar-menu" [class.active]="showMobileMenu">
       @if (currentUser$ | async; as user) {
         @if (user.role === 'ADMIN') {
-          <a routerLink="/admin" routerLinkActive="active" class="nav-link">
-            ⚙ Panel Admin
+          <a [routerLink]="['/admin']" [queryParams]="{tab: 'flights'}" routerLinkActive="active" class="nav-link">
+            ✈ Vuelos Activos
+          </a>
+          <a [routerLink]="['/admin']" [queryParams]="{tab: 'airplanes'}" routerLinkActive="active" class="nav-link">
+            🛩 Aviones
+          </a>
+          <a [routerLink]="['/admin']" [queryParams]="{tab: 'history'}" routerLinkActive="active" class="nav-link">
+            📋 Historial
           </a>
         } @else {
           <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">

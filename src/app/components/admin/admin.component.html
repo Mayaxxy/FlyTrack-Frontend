@@ -1,29 +1,17 @@
-<nav class="admin-navbar">
-  <div class="admin-nav-inner">
-    <div class="brand">
-      <span class="brand-icon">✈</span>
-      <div>
-        <span class="brand-name">FlyTrack</span>
-        <span class="brand-role">Panel de Administración</span>
-      </div>
-    </div>
-    <div class="nav-actions">
-      <button class="btn-back" (click)="goToDashboard()">← Volver a Vuelos</button>
-      <span class="admin-badge">👤 Admin</span>
-    </div>
-  </div>
-</nav>
+<app-navbar></app-navbar>
 
 <div class="admin-container">
 
   <div class="admin-header">
     <div>
-      <h1>Gestión de Vuelos</h1>
-      <p>Crea y administra los vuelos del aeropuerto</p>
+      <h1>{{ activeTab() === 'flights' ? 'Gestión de Vuelos' : activeTab() === 'airplanes' ? 'Gestión de Aviones' : 'Historial de Vuelos' }}</h1>
+      <p>{{ activeTab() === 'flights' ? 'Crea y administra los vuelos del aeropuerto' : activeTab() === 'airplanes' ? 'Crea y administra la flota de aviones' : 'Consulta todos los vuelos registrados' }}</p>
     </div>
-    <button class="btn-new" (click)="showForm.update(v => !v)">
-      @if (showForm()) { ✕ Cancelar } @else { + Nuevo Vuelo }
-    </button>
+    @if (activeTab() !== 'history') {
+      <button class="btn-new" (click)="showForm.update(v => !v)">
+        @if (showForm()) { ✕ Cancelar } @else { + {{ activeTab() === 'flights' ? 'Nuevo Vuelo' : 'Nuevo Avión' }} }
+      </button>
+    }
   </div>
 
   @if (success()) {
@@ -34,7 +22,7 @@
   }
 
   <!-- Formulario nuevo vuelo -->
-  @if (showForm()) {
+  @if (showForm() && activeTab() === 'flights') {
     <div class="form-card">
       <h2>Crear Nuevo Vuelo</h2>
       <div class="form-grid">
@@ -47,51 +35,100 @@
           }
         </div>
         <div class="form-group">
+          <label>País de Origen <span class="req">*</span></label>
+          <select [value]="originCountry()" (change)="originCountry.set($any($event.target).value); onOriginCountryChange()"
+            [class.error]="originError()">
+            <option value="">Selecciona un país</option>
+            @for (country of countries; track country.code) {
+              <option [value]="country.code">{{ country.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
           <label>Aeropuerto Origen <span class="req">*</span></label>
-          <input type="text" [value]="origin()" (input)="origin.set($any($event.target).value)"
-            placeholder="BOG" maxlength="3" [class.error]="originError()" />
+          <select [value]="origin()" (change)="origin.set($any($event.target).value)"
+            [class.error]="originError()" [disabled]="!originCountry()">
+            <option value="">{{ originCountry() ? 'Selecciona un aeropuerto' : 'Primero selecciona un país' }}</option>
+            @for (airport of originAirports; track airport.code) {
+              <option [value]="airport.code">{{ airport.code }} - {{ airport.name }}</option>
+            }
+          </select>
           @if (originError()) {
             <span class="field-error">{{ originError() }}</span>
           }
         </div>
         <div class="form-group">
+          <label>País de Destino <span class="req">*</span></label>
+          <select [value]="destinationCountry()" (change)="destinationCountry.set($any($event.target).value); onDestinationCountryChange()"
+            [class.error]="destinationError()">
+            <option value="">Selecciona un país</option>
+            @for (country of countries; track country.code) {
+              <option [value]="country.code">{{ country.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
           <label>Aeropuerto Destino <span class="req">*</span></label>
-          <input type="text" [value]="destination()" (input)="destination.set($any($event.target).value)"
-            placeholder="MDE" maxlength="3" [class.error]="destinationError()" />
+          <select [value]="destination()" (change)="destination.set($any($event.target).value)"
+            [class.error]="destinationError()" [disabled]="!destinationCountry()">
+            <option value="">{{ destinationCountry() ? 'Selecciona un aeropuerto' : 'Primero selecciona un país' }}</option>
+            @for (airport of destinationAirports; track airport.code) {
+              <option [value]="airport.code">{{ airport.code }} - {{ airport.name }}</option>
+            }
+          </select>
           @if (destinationError()) {
             <span class="field-error">{{ destinationError() }}</span>
           }
         </div>
         <div class="form-group">
           <label>Fecha de Salida <span class="req">*</span></label>
-          <input type="date" [value]="departureDate()"
-            (input)="departureDate.set($any($event.target).value)" [class.error]="departureDateError()" />
+          <input type="date" [value]="departureDate()" [min]="minDate"
+            (input)="departureDate.set($any($event.target).value); onDepartureDateTimeChange()" [class.error]="departureDateError()" />
+        </div>
+        <div class="form-group">
+          <label>Hora de Salida <span class="req">*</span></label>
+          <input type="time" [value]="departureTime()"
+            (input)="departureTime.set($any($event.target).value); onDepartureDateTimeChange()" [class.error]="departureDateError()" />
           @if (departureDateError()) {
             <span class="field-error">{{ departureDateError() }}</span>
           }
         </div>
         <div class="form-group">
-          <label>Hora de Salida <span class="req">*</span></label>
-          <input type="time" [value]="departureTime()"
-            (input)="departureTime.set($any($event.target).value)" [class.error]="departureDateError()" />
-        </div>
-        <div class="form-group">
           <label>Fecha de Llegada <span class="req">*</span></label>
-          <input type="date" [value]="arrivalDate()"
-            (input)="arrivalDate.set($any($event.target).value)" [class.error]="arrivalDateError()" />
-          @if (arrivalDateError()) {
-            <span class="field-error">{{ arrivalDateError() }}</span>
+          <input type="date" [value]="arrivalDate()" [min]="minArrivalDate" [disabled]="!canEnterArrival"
+            (input)="arrivalDate.set($any($event.target).value); onArrivalDateTimeChange()" [class.error]="arrivalDateError()" 
+            [class.disabled-hint]="!canEnterArrival" />
+          @if (!canEnterArrival) {
+            <span class="help-text">⏱️ Primero completa fecha y hora de salida</span>
           }
         </div>
         <div class="form-group">
           <label>Hora de Llegada <span class="req">*</span></label>
-          <input type="time" [value]="arrivalTime()"
-            (input)="arrivalTime.set($any($event.target).value)" [class.error]="arrivalDateError()" />
+          <input type="time" [value]="arrivalTime()" [disabled]="!canEnterArrival"
+            (input)="arrivalTime.set($any($event.target).value); onArrivalDateTimeChange()" [class.error]="arrivalDateError()"
+            [class.disabled-hint]="!canEnterArrival" />
+          @if (arrivalDateError()) {
+            <span class="field-error">{{ arrivalDateError() }}</span>
+          }
+          @if (!canEnterArrival) {
+            <span class="help-text">⏱️ Primero completa fecha y hora de salida</span>
+          }
         </div>
         <div class="form-group">
           <label>Puerta de Embarque</label>
           <input type="text" [value]="gate()" (input)="gate.set($any($event.target).value)"
             placeholder="A12" maxlength="5" />
+        </div>
+        <div class="form-group">
+          <label>Avión Asignado</label>
+          <select [value]="airplaneId()" (change)="airplaneId.set($any($event.target).value ? +$any($event.target).value : null)">
+            <option [value]="null">Sin asignar (opcional)</option>
+            @for (airplane of availableAirplanes(); track airplane.id) {
+              <option [value]="airplane.id">
+                {{ airplane.registration }} - {{ airplane.model }} ({{ airplane.capacity }} asientos)
+              </option>
+            }
+          </select>
         </div>
       </div>
       <button class="btn-submit" (click)="onSubmit()" [disabled]="submitting()">
@@ -100,24 +137,204 @@
     </div>
   }
 
-  <!-- Tabla de vuelos -->
-  @if (loading()) {
-    <div class="loading-container">
-      <div class="spinner"></div>
-      <p>Cargando vuelos...</p>
+  <!-- Formulario nuevo avión -->
+  @if (showForm() && activeTab() === 'airplanes') {
+    <div class="form-card">
+      <h2>Crear Nuevo Avión</h2>
+      <div class="form-grid-airplane">
+        <div class="form-group">
+          <label>Matrícula <span class="req">*</span></label>
+          <input type="text" [value]="airplaneRegistration()" (input)="airplaneRegistration.set($any($event.target).value)"
+            placeholder="HK-5050" maxlength="20" [class.error]="airplaneRegistrationError()" />
+          @if (airplaneRegistrationError()) {
+            <span class="field-error">{{ airplaneRegistrationError() }}</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>Modelo <span class="req">*</span></label>
+          <input type="text" [value]="airplaneModel()" (input)="airplaneModel.set($any($event.target).value)"
+            placeholder="Boeing 737-800" [class.error]="airplaneModelError()" />
+          @if (airplaneModelError()) {
+            <span class="field-error">{{ airplaneModelError() }}</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>Fabricante <span class="req">*</span></label>
+          <input type="text" [value]="airplaneManufacturer()" (input)="airplaneManufacturer.set($any($event.target).value)"
+            placeholder="Boeing" [class.error]="airplaneManufacturerError()" />
+          @if (airplaneManufacturerError()) {
+            <span class="field-error">{{ airplaneManufacturerError() }}</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>Capacidad (asientos) <span class="req">*</span></label>
+          <input type="number" [value]="airplaneCapacity()" (input)="airplaneCapacity.set(+$any($event.target).value)"
+            placeholder="189" min="1" [class.error]="airplaneCapacityError()" />
+          @if (airplaneCapacityError()) {
+            <span class="field-error">{{ airplaneCapacityError() }}</span>
+          }
+        </div>
+        <div class="form-group">
+          <label>Año de Fabricación</label>
+          <input type="number" [value]="airplaneYear()" (input)="airplaneYear.set(+$any($event.target).value)"
+            placeholder="2020" min="1950" max="2030" />
+        </div>
+      </div>
+      <button class="btn-submit" (click)="onSubmitAirplane()" [disabled]="submitting()">
+        @if (submitting()) { Creando... } @else { Crear Avión }
+      </button>
     </div>
-  } @else {
+  }
+
+  <!-- Tabla de vuelos -->
+  @if (activeTab() === 'flights') {
+    @if (loading()) {
+      <div class="loading-container">
+        <div class="spinner"></div>
+        <p>Cargando vuelos...</p>
+      </div>
+    } @else {
+      <div class="table-card">
+        <div class="table-header">
+          <h2>Vuelos Registrados</h2>
+          <span class="count">{{ flights().length }} vuelos</span>
+        </div>
+
+        @if (flights().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">✈</div>
+            <h3>No hay vuelos registrados</h3>
+            <p>Crea el primer vuelo usando el botón de arriba</p>
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Ruta</th>
+                  <th>Salida</th>
+                  <th>Llegada</th>
+                  <th>Puerta</th>
+                  <th>Avión</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (flight of flights(); track flight.id) {
+                  <tr>
+                    <td class="flight-code-cell">{{ flight.flightCode }}</td>
+                    <td>
+                      <span class="airport">{{ flight.originAirport }}</span>
+                      <span class="arrow"> → </span>
+                      <span class="airport">{{ flight.destinationAirport }}</span>
+                    </td>
+                    <td class="time-cell">{{ flight.departureTime | date:'dd/MM HH:mm' }}</td>
+                    <td class="time-cell">{{ flight.arrivalTime | date:'dd/MM HH:mm' }}</td>
+                    <td>{{ flight.gate || '—' }}</td>
+                    <td class="airplane-cell">
+                      @if (flight.airplane) {
+                        <span class="airplane-info">{{ flight.airplane.registration }}</span>
+                        <span class="airplane-model">{{ flight.airplane.model }}</span>
+                      } @else {
+                        <span class="no-airplane">Sin asignar</span>
+                      }
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="getStatusClass(flight.status)">
+                        {{ getStatusLabel(flight.status) }}
+                      </span>
+                    </td>
+                    <td>
+                      <select class="status-select" (change)="updateStatus(flight.flightCode, $any($event.target).value)">
+                        <option value="">Cambiar estado</option>
+                        <option value="SCHEDULED">Programado</option>
+                        <option value="DELAYED">Retrasado</option>
+                        <option value="BOARDING">Abordando</option>
+                        <option value="DEPARTED">Despegado</option>
+                        <option value="ARRIVED">Llegado</option>
+                        <option value="CANCELLED">Cancelado</option>
+                      </select>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- Tabla de aviones -->
+  @if (activeTab() === 'airplanes') {
+    @if (loading()) {
+      <div class="loading-container">
+        <div class="spinner"></div>
+        <p>Cargando aviones...</p>
+      </div>
+    } @else {
+      <div class="table-card">
+        <div class="table-header">
+          <h2>Aviones Registrados</h2>
+          <span class="count">{{ allAirplanes().length }} aviones</span>
+        </div>
+
+        @if (allAirplanes().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">🛩</div>
+            <h3>No hay aviones registrados</h3>
+            <p>Crea el primer avión usando el botón de arriba</p>
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Matrícula</th>
+                  <th>Modelo</th>
+                  <th>Fabricante</th>
+                  <th>Capacidad</th>
+                  <th>Año</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (airplane of allAirplanes(); track airplane.id) {
+                  <tr>
+                    <td class="flight-code-cell">{{ airplane.registration }}</td>
+                    <td>{{ airplane.model }}</td>
+                    <td>{{ airplane.manufacturer }}</td>
+                    <td>{{ airplane.capacity }} asientos</td>
+                    <td>{{ airplane.yearManufactured || '—' }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="airplane.status === 'AVAILABLE' ? 'badge-success' : 'badge-warning'">
+                        {{ airplane.status === 'AVAILABLE' ? 'Disponible' : airplane.status }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- Tabla de historial -->
+  @if (activeTab() === 'history') {
     <div class="table-card">
       <div class="table-header">
-        <h2>Vuelos Registrados</h2>
-        <span class="count">{{ flights().length }} vuelos</span>
+        <h2>Historial Completo de Vuelos</h2>
+        <span class="count">{{ allFlights().length }} vuelos</span>
       </div>
 
-      @if (flights().length === 0) {
+      @if (allFlights().length === 0) {
         <div class="empty-state">
-          <div class="empty-icon">✈</div>
-          <h3>No hay vuelos registrados</h3>
-          <p>Crea el primer vuelo usando el botón de arriba</p>
+          <div class="empty-icon">📋</div>
+          <h3>No hay vuelos en el historial</h3>
         </div>
       } @else {
         <div class="table-wrapper">
@@ -129,12 +346,12 @@
                 <th>Salida</th>
                 <th>Llegada</th>
                 <th>Puerta</th>
+                <th>Avión</th>
                 <th>Estado</th>
-                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              @for (flight of flights(); track flight.id) {
+              @for (flight of allFlights(); track flight.id) {
                 <tr>
                   <td class="flight-code-cell">{{ flight.flightCode }}</td>
                   <td>
@@ -142,24 +359,21 @@
                     <span class="arrow"> → </span>
                     <span class="airport">{{ flight.destinationAirport }}</span>
                   </td>
-                  <td class="time-cell">{{ flight.departureTime | date:'dd/MM HH:mm' }}</td>
-                  <td class="time-cell">{{ flight.arrivalTime | date:'dd/MM HH:mm' }}</td>
+                  <td class="time-cell">{{ flight.departureTime | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td class="time-cell">{{ flight.arrivalTime | date:'dd/MM/yyyy HH:mm' }}</td>
                   <td>{{ flight.gate || '—' }}</td>
+                  <td class="airplane-cell">
+                    @if (flight.airplane) {
+                      <span class="airplane-info">{{ flight.airplane.registration }}</span>
+                      <span class="airplane-model">{{ flight.airplane.model }}</span>
+                    } @else {
+                      <span class="no-airplane">Sin asignar</span>
+                    }
+                  </td>
                   <td>
                     <span class="badge" [ngClass]="getStatusClass(flight.status)">
                       {{ getStatusLabel(flight.status) }}
                     </span>
-                  </td>
-                  <td>
-                    <select class="status-select" (change)="updateStatus(flight.flightCode, $any($event.target).value)">
-                      <option value="">Cambiar estado</option>
-                      <option value="SCHEDULED">Programado</option>
-                      <option value="DELAYED">Retrasado</option>
-                      <option value="BOARDING">Abordando</option>
-                      <option value="DEPARTED">Despegado</option>
-                      <option value="ARRIVED">Llegado</option>
-                      <option value="CANCELLED">Cancelado</option>
-                    </select>
                   </td>
                 </tr>
               }

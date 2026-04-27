@@ -35,6 +35,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private notificationSubscription?: Subscription;
 
   ngOnInit(): void {
+    // Si es admin, redirigir al panel de admin
+    if (this.isAdmin()) {
+      this.router.navigate(['/admin'], { queryParams: { tab: 'flights' } });
+      return;
+    }
+    
     this.loadFlights();
     this.startAutoRefresh();
     this.startNotificationPolling();

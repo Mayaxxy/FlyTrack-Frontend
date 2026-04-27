@@ -1,36 +1,3 @@
-/* Admin Navbar */
-.admin-navbar {
-  background: #1a0a3c;
-  color: white;
-  position: sticky; top: 0; z-index: 1000;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
-}
-.admin-nav-inner {
-  max-width: 1400px; margin: 0 auto;
-  padding: 0 1.5rem; height: 64px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.brand { display: flex; align-items: center; gap: 0.75rem; }
-.brand-icon { font-size: 1.4rem; color: var(--accent); }
-.brand-name { display: block; font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; line-height: 1; }
-.brand-role { display: block; font-size: 0.7rem; opacity: 0.6; letter-spacing: 0.5px; }
-.nav-actions { display: flex; align-items: center; gap: 1rem; }
-.btn-back {
-  background: rgba(255,255,255,0.1);
-  color: white;
-  border: 1px solid rgba(255,255,255,0.2);
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-.btn-back:hover {
-  background: rgba(255,255,255,0.2);
-  border-color: rgba(255,255,255,0.3);
-}
-.admin-badge { background: rgba(227,6,19,0.2); color: #ff6b7a; border: 1px solid rgba(227,6,19,0.3); padding: 0.4rem 0.875rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
-
 /* Container */
 .admin-container { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem; }
 
@@ -62,6 +29,7 @@
 .form-card h2 { font-size: 1.1rem; font-weight: 800; color: var(--primary); margin-bottom: 1.5rem; }
 
 .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.form-grid-airplane { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 
 .form-group { margin-bottom: 0; }
 .form-group label { display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #374151; margin-bottom: 0.4rem; }
@@ -71,9 +39,41 @@
   border: 1.5px solid var(--border); border-radius: var(--radius);
   font-size: 0.875rem; transition: border-color 0.2s;
 }
-.form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(10,25,60,0.08); }
-.form-group input.error { border-color: var(--accent); }
+.form-group select {
+  width: 100%; padding: 0.7rem 0.875rem;
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  font-size: 0.875rem; transition: border-color 0.2s;
+  background: white; cursor: pointer;
+}
+.form-group select:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.form-group input:focus,
+.form-group select:focus { 
+  outline: none; border-color: var(--primary); 
+  box-shadow: 0 0 0 3px rgba(10,25,60,0.08); 
+}
+.form-group input.error,
+.form-group select.error { 
+  border-color: var(--accent); 
+}
+.form-group input.disabled-hint {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 .field-error { display: block; color: var(--accent); font-size: 0.75rem; margin-top: 0.25rem; font-weight: 600; }
+.help-text { 
+  display: block; 
+  color: #6b7280; 
+  font-size: 0.75rem; 
+  margin-top: 0.35rem; 
+  font-weight: 500;
+  font-style: italic;
+}
 
 .btn-submit {
   margin-top: 1.25rem; padding: 0.875rem 2.5rem;
@@ -112,6 +112,11 @@ tr:hover td { background: #f8f9fc; }
 .airport { font-weight: 700; color: var(--primary); }
 .arrow { color: var(--text-muted); }
 .time-cell { color: var(--text-muted); font-size: 0.82rem; }
+
+.airplane-cell { font-size: 0.82rem; }
+.airplane-info { display: block; font-weight: 700; color: var(--primary); }
+.airplane-model { display: block; color: var(--text-muted); font-size: 0.75rem; }
+.no-airplane { color: var(--text-muted); font-style: italic; }
 
 .badge { display: inline-flex; align-items: center; padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 .badge-info    { background: #dbeafe; color: #1e40af; }

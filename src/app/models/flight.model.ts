@@ -7,6 +7,17 @@ export interface Flight {
   arrivalTime: string;
   gate: string;
   status: FlightStatus;
+  airplane?: Airplane; // Información del avión asignado (opcional)
+}
+
+export interface Airplane {
+  id: number;
+  registration: string;
+  model: string;
+  manufacturer: string;
+  capacity: number;
+  status: string;
+  yearManufactured?: number;
 }
 
 export enum FlightStatus {
