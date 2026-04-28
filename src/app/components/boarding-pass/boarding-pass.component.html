@@ -11,9 +11,7 @@
   @if (error()) {
     <div class="error-container">
       <p>{{ error() }}</p>
-      <button class="btn-primary" (click)="goToDashboard()">
-        Volver a Vuelos
-      </button>
+      <button class="btn-primary" (click)="goToDashboard()">Volver a Vuelos</button>
     </div>
   }
 
@@ -34,54 +32,52 @@
       <div class="flight-info">
         <div class="info-section">
           <span class="label">Vuelo</span>
-          <span class="value large">{{ bp.flightCode }}</span>
+          <span class="value large">{{ bp.flight?.flightCode || bp.flightCode }}</span>
         </div>
-
         <div class="info-section">
           <span class="label">Asiento</span>
           <span class="value large">{{ bp.seatNumber }}</span>
         </div>
-
         <div class="info-section">
           <span class="label">Puerta</span>
-          <span class="value large gate">{{ bp.gate }}</span>
+          <span class="value large gate">{{ bp.flight?.gate || bp.gate }}</span>
         </div>
       </div>
 
       <div class="departure-info">
         <div class="info-section">
           <span class="label">Fecha de Salida</span>
-          <span class="value">{{ formatDate(bp.departureTime) }}</span>
+          <span class="value">{{ formatDate(bp.flight?.departureTime || bp.departureTime) }}</span>
         </div>
-
         <div class="info-section">
           <span class="label">Hora de Salida</span>
-          <span class="value">{{ formatTime(bp.departureTime) }}</span>
+          <span class="value">{{ formatTime(bp.flight?.departureTime || bp.departureTime) }}</span>
         </div>
       </div>
 
       @if (timeUntilExpiry()) {
-        <div class="expiry-warning">
-          ⚠️ {{ timeUntilExpiry() }}
+        <div class="expiry-warning" [ngClass]="expiryClass()">
+          {{ expiryIcon() }} {{ timeUntilExpiry() }}
         </div>
       }
 
-      <div class="qr-section">
-        <p class="qr-label">Código QR de Abordaje</p>
+      <div class="qr-section" [ngClass]="qrStatusClass()">
+        <div class="qr-header">
+          <p class="qr-label">Código QR de Abordaje</p>
+          <div class="qr-status-badge" [ngClass]="qrStatusClass()">
+            {{ qrStatusText() }}
+          </div>
+        </div>
         @if (qrCodeUrl()) {
-          <img [src]="qrCodeUrl()" alt="QR Code" class="qr-code" />
+          <img [src]="qrCodeUrl()" alt="Código QR de abordaje" class="qr-code" />
         }
         <p class="qr-info">Este código se actualiza automáticamente cada 45 segundos</p>
-        <button class="btn-refresh" (click)="manualRefresh()">
-          🔄 Actualizar QR
-        </button>
+        <button class="btn-refresh" (click)="manualRefresh()">🔄 Refrescar código</button>
       </div>
 
       <div class="pass-footer">
         <p class="footer-text">Presente este código en la puerta de embarque</p>
-        <button class="btn-secondary" (click)="goToDashboard()">
-          Volver a Vuelos
-        </button>
+        <button class="btn-secondary" (click)="goToDashboard()">Volver a Vuelos</button>
       </div>
     </div>
   }

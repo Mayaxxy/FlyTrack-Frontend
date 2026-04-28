@@ -1,137 +1,137 @@
 <app-navbar></app-navbar>
 
 <div class="baggage-container">
-  <div class="baggage-header">
+  <div class="page-header">
     <div>
-      <h1>Reportes de Equipaje</h1>
-      <p>Gestiona los inconvenientes con tu equipaje</p>
+      <h1>🧳 Reportes de Equipaje</h1>
+      <p>Reporta inconvenientes con tu equipaje en vuelos confirmados.</p>
     </div>
-
-    @if (canCreateReport()) {
-      <button class="btn-primary" (click)="toggleForm()">
-        @if (showForm()) {
-          <span>Cancelar</span>
-        } @else {
-          <span>+ Nuevo Reporte</span>
-        }
-      </button>
-    } @else {
-      <div class="limit-message">
-        Has alcanzado el límite de reportes activos
-      </div>
-    }
   </div>
 
-  @if (showForm()) {
-    <div class="report-form-card">
-      <h3>Crear Nuevo Reporte</h3>
+  <!-- FORMULARIO CREAR REPORTE -->
+  <div class="form-card">
+    <h3>Nuevo Reporte de Equipaje</h3>
+    
+    @if (!canCreateReport()) {
+      <div class="limit-msg">⚠️ Límite de 3 reportes activos alcanzado</div>
+    } @else if (validReservations().length === 0) {
+      <div class="limit-msg">⚠️ Necesitas una reserva confirmada para reportar equipaje</div>
+    } @else {
+      @if (submitError()) { <div class="error-msg">{{ submitError() }}</div> }
 
-      @if (submitError()) {
-        <div class="error-message">
-          {{ submitError() }}
-        </div>
-      }
-
-      <form (ngSubmit)="onSubmit()" class="report-form">
+      <form (ngSubmit)="onSubmit()">
         <div class="form-group">
-          <label for="flightCode">Código de Vuelo</label>
-          <input
-            type="text"
-            id="flightCode"
-            [value]="flightCode()"
-            (input)="flightCode.set($any($event.target).value)"
-            placeholder="AV123"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="baggageTag">Etiqueta de Equipaje</label>
-          <input
-            type="text"
-            id="baggageTag"
-            [value]="baggageTag()"
-            (input)="baggageTag.set($any($event.target).value)"
-            placeholder="BAG123456"
-            required
-          />
+          <label for="flight">Vuelo asociado *</label>
+          <select id="flight" name="flight" [ngModel]="selectedFlightId()" (ngModelChange)="selectedFlightId.set($event)" required aria-label="Seleccionar vuelo">
+            <option [ngValue]="null" disabled selected>Selecciona un vuelo...</option>
+            @for (r of validReservations(); track r.id) {
+              <option [ngValue]="r.flight.id">
+                {{ r.flight.flightCode }} — {{ r.flight.originAirport }} → {{ r.flight.destinationAirport }}
+              </option>
+            }
+          </select>
         </div>
 
         <div class="form-group">
-          <label for="description">Descripción del Problema</label>
-          <textarea
-            id="description"
-            [value]="description()"
-            (input)="description.set($any($event.target).value)"
-            placeholder="Describe el inconveniente con tu equipaje..."
-            rows="4"
-            required
-          ></textarea>
+          <label for="desc">Descripción del problema *</label>
+          <textarea id="desc" name="desc" rows="4" [ngModel]="description()" (ngModelChange)="description.set($event)"
+            placeholder="Describe el inconveniente con tu equipaje..." required aria-label="Descripción"></textarea>
         </div>
 
         <button type="submit" class="btn-submit" [disabled]="submitting()">
-          @if (submitting()) {
-            <span>Enviando...</span>
-          } @else {
-            <span>Enviar Reporte</span>
-          }
+          {{ submitting() ? 'Enviando...' : 'Enviar Reporte' }}
         </button>
       </form>
+    }
+  </div>
+
+  <!-- TABS ACTIVOS / RESUELTOS -->
+  @if (!loading() && !error() && reports().length > 0) {
+    <div class="reports-section">
+      <div class="reports-tabs">
+        <button 
+          [class.active]="activeTab() === 'active'" 
+          (click)="activeTab.set('active')">
+          ⚠️ Activos ({{ activeReports().length }})
+        </button>
+        <button 
+          [class.active]="activeTab() === 'resolved'" 
+          (click)="activeTab.set('resolved')">
+          ✓ Resueltos ({{ resolvedReports().length }})
+        </button>
+      </div>
+
+      <!-- REPORTES ACTIVOS -->
+      @if (activeTab() === 'active') {
+        <div class="reports-list">
+          @if (activeReports().length === 0) {
+            <div class="empty-state-small">
+              <p>✓ No tienes reportes activos</p>
+            </div>
+          } @else {
+            @for (r of activeReports(); track r.id) {
+              <div class="report-card">
+                <div class="report-header">
+                  <div>
+                    <span class="report-id">Reporte #{{ r.id }}</span>
+                    <span class="flight-tag">{{ r.flight.flightCode }}</span>
+                  </div>
+                  <span class="status-badge" [ngClass]="statusClass(r.status)">{{ statusText(r.status) }}</span>
+                </div>
+                <p class="report-desc">{{ r.description }}</p>
+                <div class="report-footer">
+                  <span class="report-date">📅 {{ fmtDate(r.createdAt) }}</span>
+                  <div class="status-flow">
+                    <span [class.done]="true">Pendiente</span>
+                    <span class="flow-arrow">→</span>
+                    <span [class.done]="r.status === 'IN_PROGRESS' || r.status === 'RESOLVED'">En Proceso</span>
+                    <span class="flow-arrow">→</span>
+                    <span [class.done]="r.status === 'RESOLVED'">Resuelto</span>
+                  </div>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      }
+
+      <!-- REPORTES RESUELTOS -->
+      @if (activeTab() === 'resolved') {
+        <div class="reports-list">
+          @if (resolvedReports().length === 0) {
+            <div class="empty-state-small">
+              <p>No tienes reportes resueltos</p>
+            </div>
+          } @else {
+            @for (r of resolvedReports(); track r.id) {
+              <div class="report-card resolved">
+                <div class="report-header">
+                  <div>
+                    <span class="report-id">Reporte #{{ r.id }}</span>
+                    <span class="flight-tag">{{ r.flight.flightCode }}</span>
+                  </div>
+                  <span class="status-badge status-resolved">✓ Resuelto</span>
+                </div>
+                <p class="report-desc">{{ r.description }}</p>
+                <div class="report-footer">
+                  <span class="report-date">📅 {{ fmtDate(r.createdAt) }}</span>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      }
     </div>
   }
 
   @if (loading()) {
-    <div class="loading-container">
-      <div class="spinner"></div>
-      <p>Cargando reportes...</p>
-    </div>
-  }
-
-  @if (error()) {
-    <div class="error-container">
-      <p>{{ error() }}</p>
-      <button class="btn-retry" (click)="loadReports()">Reintentar</button>
-    </div>
-  }
-
-  @if (!loading() && !error()) {
-    <div class="reports-list">
-      @if (reports().length === 0) {
-        <div class="no-reports">
-          <p>No tienes reportes de equipaje</p>
-        </div>
-      }
-
-      @for (report of reports(); track report.id) {
-        <div class="report-card">
-          <div class="report-header">
-            <div>
-              <span class="report-id">Reporte #{{ report.id }}</span>
-              <span class="flight-code">{{ report.flightCode }}</span>
-            </div>
-            <span class="status-badge" [ngClass]="getStatusClass(report.status)">
-              {{ getStatusText(report.status) }}
-            </span>
-          </div>
-
-          <div class="report-body">
-            <div class="report-detail">
-              <span class="detail-label">Etiqueta:</span>
-              <span class="detail-value">{{ report.baggageTag }}</span>
-            </div>
-
-            <div class="report-detail">
-              <span class="detail-label">Descripción:</span>
-              <p class="description">{{ report.description }}</p>
-            </div>
-
-            <div class="report-detail">
-              <span class="detail-label">Fecha:</span>
-              <span class="detail-value">{{ formatDate(report.createdAt) }}</span>
-            </div>
-          </div>
-        </div>
-      }
+    <div class="loading"><div class="spinner"></div><p>Cargando reportes...</p></div>
+  } @else if (error()) {
+    <div class="error-msg">{{ error() }} <button (click)="loadData()">Reintentar</button></div>
+  } @else if (reports().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">🧳</div>
+      <p>No tienes reportes de equipaje</p>
     </div>
   }
 </div>

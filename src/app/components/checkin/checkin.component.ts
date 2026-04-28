@@ -18,7 +18,6 @@ export class CheckInComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  flightCode = signal('');
   reservationCode = signal('');
   loading = signal(false);
   error = signal('');
@@ -26,31 +25,26 @@ export class CheckInComponent implements OnInit {
   boardingPass = signal<BoardingPass | null>(null);
 
   ngOnInit(): void {
-    const flightCodeParam = this.route.snapshot.paramMap.get('flightCode');
-    if (flightCodeParam) {
-      this.flightCode.set(flightCodeParam);
-    }
+    // reservationCode puede venir como query param
+    const code = this.route.snapshot.queryParamMap.get('reservationCode');
+    if (code) this.reservationCode.set(code);
   }
 
   onSubmit(): void {
-    if (!this.flightCode() || !this.reservationCode()) {
-      this.error.set('Por favor complete todos los campos');
+    if (!this.reservationCode()) {
+      this.error.set('Por favor ingresa el código de reserva');
       return;
     }
-
     this.loading.set(true);
     this.error.set('');
 
-    const request: CheckInRequest = {
-      flightCode: this.flightCode(),
-      reservationCode: this.reservationCode()
-    };
+    const request: CheckInRequest = { reservationCode: this.reservationCode() };
 
     this.checkInService.performCheckIn(request).subscribe({
-      next: (boardingPass) => {
+      next: (bp) => {
         this.loading.set(false);
         this.success.set(true);
-        this.boardingPass.set(boardingPass);
+        this.boardingPass.set(bp);
       },
       error: (err) => {
         this.loading.set(false);
@@ -61,9 +55,7 @@ export class CheckInComponent implements OnInit {
 
   viewBoardingPass(): void {
     const bp = this.boardingPass();
-    if (bp) {
-      this.router.navigate(['/boarding-pass', bp.checkInId]);
-    }
+    if (bp) this.router.navigate(['/boarding-pass', bp.checkInId]);
   }
 
   goToDashboard(): void {

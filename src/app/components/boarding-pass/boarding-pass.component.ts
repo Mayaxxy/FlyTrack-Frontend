@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
 import { CheckInService } from '../../services/checkin.service';
+import { ReceptionistService } from '../../services/receptionist.service';
+import { AuthService } from '../../services/auth.service';
 import { BoardingPass } from '../../models/checkin.model';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -16,6 +18,8 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 })
 export class BoardingPassComponent implements OnInit, OnDestroy {
   private checkInService = inject(CheckInService);
+  private receptionistService = inject(ReceptionistService);
+  private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private sanitizer = inject(DomSanitizer);
@@ -25,11 +29,20 @@ export class BoardingPassComponent implements OnInit, OnDestroy {
   loading = signal(true);
   error = signal('');
   timeUntilExpiry = signal('');
+  qrStatus = signal<'active' | 'expiring' | 'expired'>('active');
+  isReceptionist = signal(false);
 
   private refreshSubscription?: Subscription;
   private expiryCheckSubscription?: Subscription;
 
   ngOnInit(): void {
+    // Check if user is receptionist
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.isReceptionist.set(user.role === 'RECEPCIONISTA');
+      }
+    });
+
     const checkInId = this.route.snapshot.paramMap.get('checkInId');
     if (checkInId) {
       this.loadBoardingPass(Number(checkInId));
@@ -44,10 +57,15 @@ export class BoardingPassComponent implements OnInit, OnDestroy {
   }
 
   loadBoardingPass(checkInId: number): void {
-    this.checkInService.getBoardingPass(checkInId).subscribe({
+    const service = this.isReceptionist() 
+      ? this.receptionistService.getBoardingPass(checkInId)
+      : this.checkInService.getBoardingPass(checkInId);
+
+    service.subscribe({
       next: (boardingPass) => {
         this.boardingPass.set(boardingPass);
-        this.updateQRCode(boardingPass.qrCode);
+        const qr = boardingPass.qrCodeBase64 || boardingPass.qrCode || '';
+        this.updateQRCode(qr);
         this.loading.set(false);
       },
       error: (err) => {
@@ -72,16 +90,20 @@ export class BoardingPassComponent implements OnInit, OnDestroy {
     this.expiryCheckSubscription = interval(1000).subscribe(() => {
       const bp = this.boardingPass();
       if (bp) {
-        const departureTime = new Date(bp.departureTime);
+        const departureTime = new Date(bp.flight?.departureTime || bp.departureTime);
         const now = new Date();
         const minutesUntilDeparture = (departureTime.getTime() - now.getTime()) / (1000 * 60);
 
         if (minutesUntilDeparture < 0) {
           this.timeUntilExpiry.set('Expirado');
+          this.qrStatus.set('expired');
         } else if (minutesUntilDeparture < 15) {
-          this.timeUntilExpiry.set(`Expira en ${Math.floor(minutesUntilDeparture)} minutos`);
+          const mins = Math.floor(minutesUntilDeparture);
+          this.timeUntilExpiry.set(`Expira en ${mins} minuto${mins !== 1 ? 's' : ''}`);
+          this.qrStatus.set('expiring');
         } else {
           this.timeUntilExpiry.set('');
+          this.qrStatus.set('active');
         }
       }
     });
@@ -92,6 +114,31 @@ export class BoardingPassComponent implements OnInit, OnDestroy {
     if (bp) {
       this.loadBoardingPass(bp.checkInId);
     }
+  }
+
+  qrStatusClass(): string {
+    return `qr-status-${this.qrStatus()}`;
+  }
+
+  qrStatusText(): string {
+    const status = this.qrStatus();
+    if (status === 'active') return '✓ Activo';
+    if (status === 'expiring') return '⚠ Próximo a expirar';
+    return '✕ Expirado';
+  }
+
+  expiryClass(): string {
+    const status = this.qrStatus();
+    if (status === 'expiring') return 'warning';
+    if (status === 'expired') return 'danger';
+    return '';
+  }
+
+  expiryIcon(): string {
+    const status = this.qrStatus();
+    if (status === 'expiring') return '⚠️';
+    if (status === 'expired') return '🚫';
+    return '';
   }
 
   formatTime(dateString: string): string {

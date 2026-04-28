@@ -4,27 +4,13 @@
   @if (!success()) {
     <div class="checkin-card">
       <h2>Check-In Digital</h2>
-      <p class="subtitle">Complete los datos para realizar su check-in</p>
+      <p class="subtitle">Ingresa tu código de reserva para realizar el check-in</p>
 
       @if (error()) {
-        <div class="error-message">
-          {{ error() }}
-        </div>
+        <div class="error-message">{{ error() }}</div>
       }
 
       <form (ngSubmit)="onSubmit()" class="checkin-form">
-        <div class="form-group">
-          <label for="flightCode">Código de Vuelo</label>
-          <input
-            type="text"
-            id="flightCode"
-            [value]="flightCode()"
-            (input)="flightCode.set($any($event.target).value)"
-            placeholder="AV123"
-            required
-          />
-        </div>
-
         <div class="form-group">
           <label for="reservationCode">Código de Reserva</label>
           <input
@@ -34,15 +20,12 @@
             (input)="reservationCode.set($any($event.target).value)"
             placeholder="ABC123"
             required
+            aria-label="Código de reserva"
           />
         </div>
 
         <button type="submit" class="btn-primary" [disabled]="loading()">
-          @if (loading()) {
-            <span>Procesando...</span>
-          } @else {
-            <span>Realizar Check-In</span>
-          }
+          @if (loading()) { <span>Procesando...</span> } @else { <span>Realizar Check-In</span> }
         </button>
 
         <button type="button" class="btn-secondary" (click)="goToDashboard()">
@@ -54,13 +37,13 @@
     <div class="success-card">
       <div class="success-icon">✓</div>
       <h2>¡Check-In Exitoso!</h2>
-      <p>Su check-in ha sido completado correctamente</p>
+      <p>Tu check-in ha sido completado correctamente</p>
 
       @if (boardingPass(); as bp) {
         <div class="boarding-info">
           <div class="info-row">
             <span class="info-label">Vuelo:</span>
-            <span class="info-value">{{ bp.flightCode }}</span>
+            <span class="info-value">{{ bp.flight?.flightCode || bp.flightCode }}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Pasajero:</span>
@@ -72,18 +55,13 @@
           </div>
           <div class="info-row">
             <span class="info-label">Puerta:</span>
-            <span class="info-value">{{ bp.gate }}</span>
+            <span class="info-value">{{ bp.flight?.gate || bp.gate }}</span>
           </div>
         </div>
-
-        <button class="btn-primary" (click)="viewBoardingPass()">
-          Ver Pase de Abordaje
-        </button>
+        <button class="btn-primary" (click)="viewBoardingPass()">Ver Pase de Abordaje</button>
       }
 
-      <button class="btn-secondary" (click)="goToDashboard()">
-        Volver a Vuelos
-      </button>
+      <button class="btn-secondary" (click)="goToDashboard()">Volver a Vuelos</button>
     </div>
   }
 </div>

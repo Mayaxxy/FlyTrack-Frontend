@@ -2,7 +2,9 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaggageService } from '../../services/baggage.service';
+import { PassengerService } from '../../services/passenger.service';
 import { BaggageReport, BaggageReportRequest, BaggageReportStatus } from '../../models/baggage.model';
+import { Reservation } from '../../models/reservation.model';
 import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
@@ -14,120 +16,70 @@ import { NavbarComponent } from '../navbar/navbar.component';
 })
 export class BaggageComponent implements OnInit {
   private baggageService = inject(BaggageService);
+  private passengerService = inject(PassengerService);
 
   reports = signal<BaggageReport[]>([]);
+  /** Solo reservas ACTIVE o COMPLETED — no canceladas */
+  validReservations = signal<Reservation[]>([]);
   loading = signal(true);
   error = signal('');
   showForm = signal(false);
+  activeTab = signal<'active' | 'resolved'>('active');
 
-  flightCode = signal('');
+  selectedFlightId = signal<number | null>(null);
   description = signal('');
-  baggageTag = signal('');
   submitting = signal(false);
   submitError = signal('');
 
   ngOnInit(): void {
-    this.loadReports();
+    this.loadData();
   }
 
-  loadReports(): void {
+  loadData(): void {
     this.loading.set(true);
     this.baggageService.getMyReports().subscribe({
-      next: (reports) => {
-        this.reports.set(reports);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set('Error al cargar los reportes');
-        this.loading.set(false);
-      }
+      next: (r) => { this.reports.set(r); this.loading.set(false); },
+      error: () => { this.error.set('Error al cargar reportes'); this.loading.set(false); }
+    });
+    this.passengerService.getMyReservations().subscribe({
+      next: (res) => this.validReservations.set(res.filter(r => r.status === 'ACTIVE' || r.status === 'COMPLETED'))
     });
   }
 
-  toggleForm(): void {
-    this.showForm.set(!this.showForm());
-    if (this.showForm()) {
-      this.resetForm();
-    }
+  activeReports(): BaggageReport[] {
+    return this.reports().filter(r => r.status === BaggageReportStatus.PENDING || r.status === BaggageReportStatus.IN_PROGRESS);
+  }
+
+  resolvedReports(): BaggageReport[] {
+    return this.reports().filter(r => r.status === BaggageReportStatus.RESOLVED);
   }
 
   canCreateReport(): boolean {
-    const activeReports = this.reports().filter(
-      r => r.status === BaggageReportStatus.PENDING || r.status === BaggageReportStatus.IN_PROGRESS
-    );
-    return activeReports.length < 5;
+    return this.activeReports().length < 3;
+  }
+
+  toggleForm(): void {
+    this.showForm.update(v => !v);
+    if (!this.showForm()) { this.resetForm(); }
   }
 
   onSubmit(): void {
-    if (!this.flightCode() || !this.description() || !this.baggageTag()) {
-      this.submitError.set('Por favor complete todos los campos');
+    if (!this.selectedFlightId() || !this.description().trim()) {
+      this.submitError.set('Selecciona un vuelo e ingresa una descripción');
       return;
     }
-
     this.submitting.set(true);
     this.submitError.set('');
-
-    const request: BaggageReportRequest = {
-      flightCode: this.flightCode(),
-      description: this.description(),
-      baggageTag: this.baggageTag()
-    };
-
-    this.baggageService.createReport(request).subscribe({
-      next: (report) => {
-        this.submitting.set(false);
-        this.showForm.set(false);
-        this.resetForm();
-        this.loadReports();
-      },
-      error: (err) => {
-        this.submitting.set(false);
-        this.submitError.set(err.error?.message || 'Error al crear el reporte');
-      }
+    const req: BaggageReportRequest = { flightId: this.selectedFlightId()!, description: this.description() };
+    this.baggageService.createReport(req).subscribe({
+      next: () => { this.submitting.set(false); this.showForm.set(false); this.resetForm(); this.loadData(); },
+      error: (e) => { this.submitting.set(false); this.submitError.set(e.error?.message || 'Error al crear reporte'); }
     });
   }
 
-  resetForm(): void {
-    this.flightCode.set('');
-    this.description.set('');
-    this.baggageTag.set('');
-    this.submitError.set('');
-  }
+  resetForm(): void { this.selectedFlightId.set(null); this.description.set(''); this.submitError.set(''); }
 
-  getStatusClass(status: BaggageReportStatus): string {
-    switch (status) {
-      case BaggageReportStatus.PENDING:
-        return 'status-pending';
-      case BaggageReportStatus.IN_PROGRESS:
-        return 'status-in-progress';
-      case BaggageReportStatus.RESOLVED:
-        return 'status-resolved';
-      default:
-        return '';
-    }
-  }
-
-  getStatusText(status: BaggageReportStatus): string {
-    switch (status) {
-      case BaggageReportStatus.PENDING:
-        return 'Pendiente';
-      case BaggageReportStatus.IN_PROGRESS:
-        return 'En Proceso';
-      case BaggageReportStatus.RESOLVED:
-        return 'Resuelto';
-      default:
-        return status;
-    }
-  }
-
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-CO', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
+  statusClass = (s: BaggageReportStatus) => ({ PENDING: 'status-pending', IN_PROGRESS: 'status-progress', RESOLVED: 'status-resolved' }[s] || '');
+  statusText = (s: BaggageReportStatus) => ({ PENDING: 'Pendiente', IN_PROGRESS: 'En Proceso', RESOLVED: 'Resuelto' }[s] || s);
+  fmtDate = (d: string) => new Date(d).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' } as any);
 }

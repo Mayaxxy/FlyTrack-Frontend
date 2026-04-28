@@ -1,11 +1,22 @@
 export interface Notification {
   id: number;
-  passengerId: number;
-  flightCode: string;
+  passengerId?: number;
+  flightCode?: string;
   type: NotificationType;
   message: string;
   read: boolean;
-  createdAt: string;
+  createdAt?: string;
+  sentAt: string;
+  flight: {
+    id: number;
+    flightCode: string;
+    originAirport: string;
+    destinationAirport: string;
+    departureTime: string;
+    arrivalTime: string;
+    gate: string;
+    status: string;
+  };
 }
 
 export enum NotificationType {

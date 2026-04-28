@@ -4,9 +4,7 @@ import { Observable } from 'rxjs';
 import { BaggageReport, BaggageReportRequest } from '../models/baggage.model';
 import { environment } from '../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class BaggageService {
   private http = inject(HttpClient);
 

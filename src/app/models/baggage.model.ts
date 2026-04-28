@@ -1,17 +1,26 @@
 export interface BaggageReport {
   id: number;
-  passengerId: number;
-  flightCode: string;
+  passenger: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    documentType: string;
+    documentId: string;
+  };
+  flight: {
+    id: number;
+    flightCode: string;
+  };
   description: string;
-  baggageTag: string;
   status: BaggageReportStatus;
   createdAt: string;
 }
 
 export interface BaggageReportRequest {
-  flightCode: string;
+  flightId: number;
   description: string;
-  baggageTag: string;
 }
 
 export enum BaggageReportStatus {

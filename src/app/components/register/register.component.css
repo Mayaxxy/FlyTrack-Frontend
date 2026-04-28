@@ -109,6 +109,11 @@
 
 .phone-input { flex: 1; }
 
+.phone-field-error {
+  margin-top: 0.3rem;
+  white-space: normal;
+}
+
 /* ── Field error inline ── */
 .input-row {
   display: flex;

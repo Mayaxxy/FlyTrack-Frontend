@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { FlightService } from '../../services/flight.service';
+import { AdminService } from '../../services/admin.service';
 import { Flight, Airplane } from '../../models/flight.model';
+import { AdminUser, AdminCreateUserRequest, AdminUpdateUserRequest, AuditLog, Role } from '../../models/admin.model';
 import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
@@ -17,6 +19,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 export class AdminComponent implements OnInit {
   private authService = inject(AuthService);
   private flightService = inject(FlightService);
+  private adminService = inject(AdminService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -26,7 +29,7 @@ export class AdminComponent implements OnInit {
   error   = signal('');
   success = signal('');
   showForm = signal(false);
-  activeTab = signal<'flights' | 'airplanes' | 'history'>('flights');
+  activeTab = signal<'flights' | 'airplanes' | 'history' | 'users' | 'audit'>('flights');
 
   // Form fields
   flightCode   = signal('');
@@ -65,6 +68,48 @@ export class AdminComponent implements OnInit {
   destinationError = signal('');
   departureDateError = signal('');
   arrivalDateError = signal('');
+
+  // ── Gestión de Usuarios ───────────────────────────────────────────────────
+  users = signal<AdminUser[]>([]);
+  auditLogs = signal<AuditLog[]>([]);
+  userFilterRole = signal<Role | ''>('');
+  userFilterActive = signal<'all' | 'true' | 'false'>('all');
+  showUserForm = signal(false);
+  editingUser = signal<AdminUser | null>(null);
+  showResetPasswordForm = signal<number | null>(null);
+
+  // Formulario crear/editar usuario
+  uFirstName = signal('');
+  uLastName = signal('');
+  uEmail = signal('');
+  uPhone = signal('');
+  uDocumentType = signal('CC');
+  uDocumentId = signal('');
+  uPassword = signal('');
+  uRole = signal<Role>('RECEPCIONISTA');
+  uNewPassword = signal('');
+  uSubmitting = signal(false);
+
+  // Errores formulario usuario
+  uFirstNameError = signal('');
+  uLastNameError = signal('');
+  uEmailError = signal('');
+  uPhoneError = signal('');
+  uDocumentIdError = signal('');
+  uPasswordError = signal('');
+  uNewPasswordError = signal('');
+
+  readonly roles: Role[] = ['ADMIN', 'RECEPCIONISTA'];
+  readonly documentTypes = ['CC', 'PASSPORT', 'CE'];
+
+  get filteredUsers(): AdminUser[] {
+    return this.users().filter(u => {
+      const roleMatch = !this.userFilterRole() || u.role === this.userFilterRole();
+      const activeMatch = this.userFilterActive() === 'all' ||
+        (this.userFilterActive() === 'true' ? u.active : !u.active);
+      return roleMatch && activeMatch;
+    });
+  }
 
   // Países disponibles
   countries = [
@@ -231,7 +276,7 @@ export class AdminComponent implements OnInit {
     // Leer el parámetro de query para la pestaña activa
     this.route.queryParams.subscribe(params => {
       const tab = params['tab'];
-      if (tab === 'flights' || tab === 'airplanes' || tab === 'history') {
+      if (tab === 'flights' || tab === 'airplanes' || tab === 'history' || tab === 'users' || tab === 'audit') {
         this.activeTab.set(tab);
       }
     });
@@ -240,6 +285,8 @@ export class AdminComponent implements OnInit {
     this.loadAvailableAirplanes();
     this.loadAllAirplanes();
     this.loadAllFlights();
+    this.loadUsers();
+    this.loadAuditLogs();
   }
 
   loadFlights(): void {
@@ -489,5 +536,255 @@ export class AdminComponent implements OnInit {
       ARRIVED: 'badge-success', CANCELLED: 'badge-danger'
     };
     return map[status] || 'badge-default';
+  }
+
+  // ── Gestión de Usuarios ───────────────────────────────────────────────────
+
+  loadUsers(): void {
+    this.adminService.getUsers().subscribe({
+      next: (data) => this.users.set(data),
+      error: () => this.error.set('Error al cargar usuarios')
+    });
+  }
+
+  loadAuditLogs(): void {
+    this.adminService.getAuditLogs().subscribe({
+      next: (data) => this.auditLogs.set(data),
+      error: () => {}
+    });
+  }
+
+  openCreateUserForm(): void {
+    this.editingUser.set(null);
+    this.resetUserForm();
+    this.showUserForm.set(true);
+  }
+
+  openEditUserForm(user: AdminUser): void {
+    this.editingUser.set(user);
+    this.uFirstName.set(user.firstName);
+    this.uLastName.set(user.lastName);
+    this.uEmail.set(user.email);
+    this.uPhone.set(user.phone);
+    this.uDocumentType.set(user.documentType);
+    this.uDocumentId.set(user.documentId);
+    this.uRole.set(user.role);
+    this.uPassword.set('');
+    this.showUserForm.set(true);
+  }
+
+  cancelUserForm(): void {
+    this.showUserForm.set(false);
+    this.editingUser.set(null);
+    this.resetUserForm();
+  }
+
+  onSubmitUser(): void {
+    this.error.set('');
+    this.success.set('');
+    this.clearUserErrors();
+
+    let hasErrors = false;
+
+    // Nombre
+    const fn = this.uFirstName().trim();
+    if (!fn) { this.uFirstNameError.set('El nombre es obligatorio'); hasErrors = true; }
+    else if (fn.length < 2 || fn.length > 50) { this.uFirstNameError.set('Entre 2 y 50 caracteres'); hasErrors = true; }
+    else if (!/^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$/.test(fn)) { this.uFirstNameError.set('Solo letras'); hasErrors = true; }
+
+    // Apellido
+    const ln = this.uLastName().trim();
+    if (!ln) { this.uLastNameError.set('El apellido es obligatorio'); hasErrors = true; }
+    else if (ln.length < 2 || ln.length > 50) { this.uLastNameError.set('Entre 2 y 50 caracteres'); hasErrors = true; }
+    else if (!/^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$/.test(ln)) { this.uLastNameError.set('Solo letras'); hasErrors = true; }
+
+    // Documento
+    const docId = this.uDocumentId().trim();
+    if (!docId) { this.uDocumentIdError.set('El documento es obligatorio'); hasErrors = true; }
+    else {
+      const docType = this.uDocumentType();
+      if (docType === 'CC' && !/^[0-9]{6,10}$/.test(docId)) {
+        this.uDocumentIdError.set('La cédula debe tener entre 6 y 10 dígitos numéricos'); hasErrors = true;
+      } else if (docType === 'PASSPORT' && !/^[A-Z]{1,2}[0-9]{6,7}$/.test(docId)) {
+        this.uDocumentIdError.set('Formato inválido. Ej: AB123456'); hasErrors = true;
+      } else if (docType === 'CE' && !/^[0-9]{4,6}$/.test(docId)) {
+        this.uDocumentIdError.set('La cédula de extranjería debe tener entre 4 y 6 dígitos'); hasErrors = true;
+      }
+    }
+
+    // Teléfono
+    const ph = this.uPhone().trim();
+    if (!ph) { this.uPhoneError.set('El teléfono es obligatorio'); hasErrors = true; }
+    else if (!/^\+?[0-9]{7,15}$/.test(ph)) { this.uPhoneError.set('Solo números (7-15 dígitos)'); hasErrors = true; }
+
+    const editing = this.editingUser();
+    if (!editing) {
+      // Email
+      const em = this.uEmail().trim();
+      if (!em) { this.uEmailError.set('El email es obligatorio'); hasErrors = true; }
+      else if (!/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(em)) {
+        this.uEmailError.set('Formato de email inválido'); hasErrors = true;
+      }
+
+      // Contraseña
+      const pw = this.uPassword();
+      if (!pw) { this.uPasswordError.set('La contraseña es obligatoria'); hasErrors = true; }
+      else if (pw.length < 8) { this.uPasswordError.set('Mínimo 8 caracteres'); hasErrors = true; }
+      else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(pw)) {
+        this.uPasswordError.set('Debe tener mayúscula, minúscula, número y carácter especial');
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) return;
+    this.uSubmitting.set(true);
+
+    if (editing) {
+      const req: AdminUpdateUserRequest = {
+        firstName: this.uFirstName().trim(),
+        lastName: this.uLastName().trim(),
+        phone: this.uPhone().trim(),
+        documentId: this.uDocumentId().trim(),
+        documentType: this.uDocumentType()
+      };
+      this.adminService.updateUser(editing.id, req).subscribe({
+        next: () => {
+          this.uSubmitting.set(false);
+          this.success.set('Usuario actualizado correctamente');
+          this.cancelUserForm();
+          this.loadUsers();
+          this.loadAuditLogs();
+        },
+        error: (err: any) => {
+          this.uSubmitting.set(false);
+          this.error.set(err.error?.message || 'Error al actualizar usuario');
+        }
+      });
+    } else {
+      const req: AdminCreateUserRequest = {
+        firstName: this.uFirstName().trim(),
+        lastName: this.uLastName().trim(),
+        email: this.uEmail().trim().toLowerCase(),
+        phone: this.uPhone().trim(),
+        documentType: this.uDocumentType(),
+        documentId: this.uDocumentId().trim(),
+        password: this.uPassword(),
+        role: this.uRole()
+      };
+      this.adminService.createUser(req).subscribe({
+        next: (u) => {
+          this.uSubmitting.set(false);
+          this.success.set(`Usuario ${u.email} creado correctamente`);
+          this.cancelUserForm();
+          this.loadUsers();
+          this.loadAuditLogs();
+        },
+        error: (err: any) => {
+          this.uSubmitting.set(false);
+          this.error.set(err.error?.message || 'Error al crear usuario');
+        }
+      });
+    }
+  }
+
+  changeUserRole(user: AdminUser, newRole: Role): void {
+    if (user.role === newRole) return;
+    this.adminService.changeRole(user.id, { role: newRole }).subscribe({
+      next: () => {
+        this.success.set(`Rol de ${user.email} cambiado a ${newRole}`);
+        this.loadUsers();
+        this.loadAuditLogs();
+      },
+      error: (err: any) => this.error.set(err.error?.message || 'Error al cambiar rol')
+    });
+  }
+
+  toggleUserActive(user: AdminUser): void {
+    if (user.active) {
+      this.adminService.deactivateUser(user.id).subscribe({
+        next: () => {
+          this.success.set(`Usuario ${user.email} desactivado`);
+          this.loadUsers();
+          this.loadAuditLogs();
+        },
+        error: (err: any) => this.error.set(err.error?.message || 'Error al desactivar usuario')
+      });
+    } else {
+      this.adminService.reactivateUser(user.id).subscribe({
+        next: () => {
+          this.success.set(`Usuario ${user.email} reactivado`);
+          this.loadUsers();
+          this.loadAuditLogs();
+        },
+        error: (err: any) => this.error.set(err.error?.message || 'Error al reactivar usuario')
+      });
+    }
+  }
+
+  deleteUser(user: AdminUser): void {
+    if (!confirm(`¿Eliminar permanentemente a ${user.email}? Esta acción no se puede deshacer.`)) return;
+    this.adminService.deleteUser(user.id).subscribe({
+      next: () => {
+        this.success.set(`Usuario ${user.email} eliminado`);
+        this.loadUsers();
+        this.loadAuditLogs();
+      },
+      error: (err: any) => this.error.set(err.error?.message || 'Error al eliminar usuario')
+    });
+  }
+
+  openResetPassword(userId: number): void {
+    this.showResetPasswordForm.set(userId);
+    this.uNewPassword.set('');
+    this.uNewPasswordError.set('');
+  }
+
+  cancelResetPassword(): void {
+    this.showResetPasswordForm.set(null);
+    this.uNewPassword.set('');
+    this.uNewPasswordError.set('');
+  }
+
+  submitResetPassword(userId: number): void {
+    this.uNewPasswordError.set('');
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(this.uNewPassword())) {
+      this.uNewPasswordError.set('Mínimo 8 caracteres, mayúscula, minúscula, número y carácter especial');
+      return;
+    }
+    this.adminService.resetPassword(userId, { newPassword: this.uNewPassword() }).subscribe({
+      next: () => {
+        this.success.set('Contraseña restablecida correctamente');
+        this.cancelResetPassword();
+        this.loadAuditLogs();
+      },
+      error: (err: any) => this.error.set(err.error?.message || 'Error al restablecer contraseña')
+    });
+  }
+
+  getRoleLabel(role: string): string {
+    const map: Record<string, string> = {
+      ADMIN: 'Admin', RECEPCIONISTA: 'Recepcionista', PASSENGER: 'Pasajero'
+    };
+    return map[role] || role;
+  }
+
+  getAuditActionLabel(action: string): string {
+    const map: Record<string, string> = {
+      CREATE: 'Creación', UPDATE: 'Actualización', ROLE_CHANGE: 'Cambio de Rol',
+      DEACTIVATE: 'Desactivación', REACTIVATE: 'Reactivación', DELETE: 'Eliminación'
+    };
+    return map[action] || action;
+  }
+
+  private resetUserForm(): void {
+    this.uFirstName.set(''); this.uLastName.set(''); this.uEmail.set('');
+    this.uPhone.set(''); this.uDocumentType.set('CC'); this.uDocumentId.set('');
+    this.uPassword.set(''); this.uRole.set('RECEPCIONISTA');
+    this.clearUserErrors();
+  }
+
+  private clearUserErrors(): void {
+    this.uFirstNameError.set(''); this.uLastNameError.set(''); this.uEmailError.set('');
+    this.uPhoneError.set(''); this.uDocumentIdError.set(''); this.uPasswordError.set('');
   }
 }

@@ -172,31 +172,29 @@
         <!-- Teléfono -->
         <div class="form-group">
           <label for="phone">Teléfono <span class="required">*</span></label>
-          <div class="input-row">
-            <div class="phone-wrapper" style="flex:1; min-width:0;">
-              <select class="country-select"
-                [value]="phoneCountry()"
-                (change)="phoneCountry.set($any($event.target).value)">
-                @for (c of countries; track c.code) {
-                  <option [value]="c.code">{{ c.flag }} {{ c.code }}</option>
-                }
-              </select>
-              <div class="input-wrapper phone-input">
-                <span class="input-icon">📱</span>
-                <input type="tel" id="phone"
-                  [value]="phoneDisplay()"
-                  (input)="onPhoneInput($event)"
-                  placeholder="321 879 89 89"
-                  maxlength="15"
-                  autocomplete="off"
-                  [class.input-error]="phone().length > 0 && !!phoneError()"
-                  required />
-              </div>
+          <div class="phone-wrapper">
+            <select class="country-select"
+              [value]="phoneCountry()"
+              (change)="phoneCountry.set($any($event.target).value)">
+              @for (c of countries; track c.code) {
+                <option [value]="c.code">{{ c.flag }} {{ c.code }}</option>
+              }
+            </select>
+            <div class="input-wrapper phone-input">
+              <span class="input-icon">📱</span>
+              <input type="tel" id="phone"
+                [value]="phoneDisplay()"
+                (input)="onPhoneInput($event)"
+                placeholder="321 879 89 89"
+                maxlength="15"
+                autocomplete="off"
+                [class.input-error]="phone().length > 0 && !!phoneError()"
+                required />
             </div>
-            @if (phone().length > 0 && phoneError()) {
-              <p class="field-error">{{ phoneError() }}</p>
-            }
           </div>
+          @if (phone().length > 0 && phoneError()) {
+            <p class="field-error phone-field-error">{{ phoneError() }}</p>
+          }
         </div>
 
         <!-- Contraseña -->

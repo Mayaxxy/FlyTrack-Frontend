@@ -1,73 +1,245 @@
 <app-navbar></app-navbar>
 
 <div class="dashboard-container">
-  <div class="dashboard-header">
-    <div>
-      <h1>Mis Vuelos</h1>
-      <p>Consulta y gestiona tus vuelos próximos</p>
-    </div>
-    @if (isAdmin()) {
-      <button class="btn-create-flight" (click)="goToAdmin()">
-        + Crear Vuelo
-      </button>
-    }
+
+  <!-- TABS -->
+  <div class="tabs" role="tablist">
+    <button role="tab" [class.active]="activeTab() === 'reservations'" (click)="setTab('reservations')" aria-label="Mis Reservas">
+      🎫 Mis Reservas
+      @if (confirmedReservations().length > 0) {
+        <span class="tab-badge">{{ confirmedReservations().length }}</span>
+      }
+    </button>
+    <button role="tab" [class.active]="activeTab() === 'flights'" (click)="setTab('flights')" aria-label="Mis Vuelos">
+      ✈ Mis Vuelos
+    </button>
+    <button role="tab" [class.active]="activeTab() === 'explore'" (click)="setTab('explore')" aria-label="Explorar Vuelos">
+      🔍 Explorar Vuelos
+    </button>
   </div>
 
-  <div class="filters-section">
-    <div class="filter-group">
-      <label for="origin">Origen</label>
-      <input
-        type="text"
-        id="origin"
-        [value]="originFilter()"
-        (input)="onOriginFilterChange($any($event.target).value)"
-        placeholder="Buscar por origen..."
-      />
+  @if (successMsg()) { <div class="banner success" role="alert">{{ successMsg() }}</div> }
+  @if (error()) { <div class="banner error" role="alert">⚠️ {{ error() }}</div> }
+
+  <!-- ═══════════════════════════════════════════════
+       TAB: MIS RESERVAS
+       Muestra todas las reservas (CONFIRMADA / CANCELADA)
+       Acciones: Cancelar reserva, Hacer check-in
+  ═══════════════════════════════════════════════ -->
+  @if (activeTab() === 'reservations') {
+    <div class="section-header">
+      <h2>Mis Reservas</h2>
+      <p class="section-desc">Gestiona tus reservas. Cancela o realiza check-in cuando esté disponible.</p>
     </div>
 
-    <div class="filter-group">
-      <label for="destination">Destino</label>
-      <input
-        type="text"
-        id="destination"
-        [value]="destinationFilter()"
-        (input)="onDestinationFilterChange($any($event.target).value)"
-        placeholder="Buscar por destino..."
-      />
-    </div>
+    @if (loading()) { <div class="loading"><div class="spinner"></div><p>Cargando...</p></div> }
 
-    @if (originFilter() || destinationFilter()) {
-      <button class="btn-clear" (click)="clearFilters()">
-        Limpiar Filtros
-      </button>
+    @else if (reservations().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🎫</div>
+        <h3>No tienes reservas</h3>
+        <p>Explora los vuelos disponibles y reserva tu próximo viaje.</p>
+        <button class="btn-primary" (click)="setTab('explore')">Explorar Vuelos</button>
+      </div>
     }
-  </div>
 
-  @if (loading()) {
-    <div class="loading-container">
-      <div class="spinner"></div>
-      <p>Cargando vuelos...</p>
-    </div>
+    @else {
+      <div class="cards-grid">
+        @for (r of reservations(); track r.id) {
+          <div class="res-card" [class.res-cancelled]="r.status === 'CANCELLED'">
+
+            <!-- Estado de la reserva -->
+            <div class="res-status-bar" [class.confirmed]="r.status === 'ACTIVE'" [class.cancelled]="r.status === 'CANCELLED'">
+              @if (r.status === 'ACTIVE') { ✅ CONFIRMADA }
+              @else { ✕ CANCELADA }
+            </div>
+
+            <div class="res-body">
+              <div class="res-flight-code">{{ r.flight.flightCode }}</div>
+              <div class="res-route">
+                <span class="airport-big">{{ r.flight.originAirport }}</span>
+                <span class="route-arrow">→</span>
+                <span class="airport-big">{{ r.flight.destinationAirport }}</span>
+              </div>
+              <div class="res-info">
+                <span>📅 {{ fmtDate(r.flight.departureTime) }}</span>
+                <span>🕐 {{ fmtTime(r.flight.departureTime) }}</span>
+              </div>
+              <div class="res-code">Código: <strong>{{ r.reservationCode }}</strong></div>
+            </div>
+
+            @if (r.status === 'ACTIVE') {
+              <div class="res-actions">
+                @if (r.hasCheckIn) {
+                  <div class="checkin-done">✅ Check-in realizado</div>
+                } @else if (canCheckIn(r)) {
+                  <button class="btn-checkin" (click)="goToCheckIn(r)">Hacer Check-In</button>
+                } @else {
+                  <div class="checkin-info">{{ checkInWindowStatus(r) || 'Check-in no disponible' }}</div>
+                }
+                @if (!r.hasCheckIn) {
+                  <button class="btn-cancel-res" (click)="cancelReservation(r)">Cancelar Reserva</button>
+                }
+              </div>
+            } @else {
+              <div class="res-actions">
+                <p class="cancelled-note">Reserva cancelada. Para volver a viajar, crea una nueva reserva.</p>
+                <button class="btn-secondary" (click)="setTab('explore')">Nueva Reserva</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
   }
 
-  @if (error()) {
-    <div class="error-container">
-      <p>{{ error() }}</p>
-      <button class="btn-retry" (click)="loadFlights()">Reintentar</button>
+  <!-- ═══════════════════════════════════════════════
+       TAB: MIS VUELOS
+       Solo reservas CONFIRMADAS con vuelo no cancelado
+       Muestra: estado operativo, puerta, check-in, QR
+       NO muestra reservas canceladas
+  ═══════════════════════════════════════════════ -->
+  @if (activeTab() === 'flights') {
+    <div class="section-header">
+      <h2>Mis Vuelos</h2>
+      <p class="section-desc">Estado operativo de tus vuelos confirmados. Aquí puedes ver tu QR de abordaje.</p>
     </div>
+
+    @if (loading()) { <div class="loading"><div class="spinner"></div><p>Cargando...</p></div> }
+
+    @else if (activeFlights().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">✈</div>
+        <h3>No tienes vuelos activos</h3>
+        <p>Tus vuelos aparecerán aquí una vez tengas reservas confirmadas.</p>
+        <button class="btn-primary" (click)="setTab('reservations')">Ver Mis Reservas</button>
+      </div>
+    }
+
+    @else {
+      <div class="cards-grid">
+        @for (r of activeFlights(); track r.id) {
+          <div class="flight-op-card">
+            <div class="flight-op-header">
+              <span class="flight-code-big">{{ r.flight.flightCode }}</span>
+              <span class="status-badge" [ngClass]="statusClass(r.flight.status)">
+                {{ statusText(r.flight.status) }}
+              </span>
+            </div>
+
+            <div class="flight-op-route">
+              <div class="op-airport">
+                <div class="op-code">{{ r.flight.originAirport }}</div>
+                <div class="op-time">{{ fmtTime(r.flight.departureTime) }}</div>
+                <div class="op-date">{{ fmtDate(r.flight.departureTime) }}</div>
+              </div>
+              <div class="op-arrow">✈</div>
+              <div class="op-airport right">
+                <div class="op-code">{{ r.flight.destinationAirport }}</div>
+                <div class="op-time">{{ fmtTime(r.flight.arrivalTime) }}</div>
+                <div class="op-date">{{ fmtDate(r.flight.arrivalTime) }}</div>
+              </div>
+            </div>
+
+            <div class="flight-op-details">
+              <div class="op-detail">
+                <span class="op-label">Puerta</span>
+                <span class="op-value gate">{{ r.flight.gate || '—' }}</span>
+              </div>
+              @if (r.seatNumber) {
+                <div class="op-detail">
+                  <span class="op-label">Asiento</span>
+                  <span class="op-value">{{ r.seatNumber }}</span>
+                </div>
+              }
+              <div class="op-detail">
+                <span class="op-label">Check-In</span>
+                <span class="op-value" [class.done]="r.hasCheckIn">
+                  {{ r.hasCheckIn ? '✅ Realizado' : '⏳ Pendiente' }}
+                </span>
+              </div>
+            </div>
+
+            <div class="flight-op-actions">
+              @if (r.hasCheckIn && r.checkInId) {
+                <button class="btn-qr" (click)="goToBoardingPass(r)">
+                  📱 Ver QR de Abordaje
+                </button>
+              } @else if (canCheckIn(r)) {
+                <button class="btn-checkin" (click)="goToCheckIn(r)">
+                  ✅ Hacer Check-In
+                </button>
+              } @else {
+                <div class="checkin-info">{{ checkInWindowStatus(r) || 'Check-in no disponible aún' }}</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
   }
 
-  @if (!loading() && !error()) {
-    <div class="flights-grid">
-      @if (filteredFlights().length === 0) {
-        <div class="no-flights">
-          <p>No se encontraron vuelos</p>
-        </div>
+  <!-- ═══════════════════════════════════════════════
+       TAB: EXPLORAR VUELOS
+       Vuelos disponibles para reservar
+  ═══════════════════════════════════════════════ -->
+  @if (activeTab() === 'explore') {
+    <div class="section-header">
+      <h2>Explorar Vuelos</h2>
+      <p class="section-desc">Encuentra y reserva tu próximo vuelo.</p>
+    </div>
+
+    <div class="filters">
+      <input type="text" placeholder="🔍 Origen..." [value]="originFilter()"
+        (input)="onOriginChange($any($event.target).value)" aria-label="Filtrar por origen" />
+      <input type="text" placeholder="🔍 Destino..." [value]="destinationFilter()"
+        (input)="onDestinationChange($any($event.target).value)" aria-label="Filtrar por destino" />
+      @if (originFilter() || destinationFilter()) {
+        <button class="btn-clear" (click)="clearFilters()">✕ Limpiar</button>
       }
-
-      @for (flight of filteredFlights(); track flight.id) {
-        <app-flight-card [flight]="flight"></app-flight-card>
-      }
     </div>
+
+    @if (loading()) { <div class="loading"><div class="spinner"></div><p>Buscando vuelos...</p></div> }
+
+    @else if (filteredFlights().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No hay vuelos disponibles</h3>
+        <p>Intenta con otros filtros o vuelve más tarde.</p>
+      </div>
+    }
+
+    @else {
+      <div class="cards-grid">
+        @for (f of filteredFlights(); track f.id) {
+          <div class="explore-card" [class.already-reserved]="alreadyReserved(f)">
+            <div class="explore-header">
+              <span class="flight-code-big">{{ f.flightCode }}</span>
+              <span class="status-badge" [ngClass]="statusClass(f.status)">{{ statusText(f.status) }}</span>
+            </div>
+            <div class="explore-route">
+              <span class="airport-big">{{ f.originAirport }}</span>
+              <span class="route-arrow">→</span>
+              <span class="airport-big">{{ f.destinationAirport }}</span>
+            </div>
+            <div class="explore-info">
+              <span>📅 {{ fmtDate(f.departureTime) }}</span>
+              <span>🕐 {{ fmtTime(f.departureTime) }}</span>
+              <span>🚪 Puerta: {{ f.gate || 'Por asignar' }}</span>
+            </div>
+            <div class="explore-actions">
+              @if (f.status === 'CANCELLED') {
+                <span class="info-tag cancelled">Vuelo cancelado</span>
+              } @else if (alreadyReserved(f)) {
+                <span class="info-tag reserved">✓ Ya tienes reserva</span>
+              } @else {
+                <button class="btn-reserve" (click)="reserve(f)">+ Reservar</button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
   }
+
 </div>

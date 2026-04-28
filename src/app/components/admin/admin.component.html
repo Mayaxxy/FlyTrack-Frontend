@@ -4,13 +4,29 @@
 
   <div class="admin-header">
     <div>
-      <h1>{{ activeTab() === 'flights' ? 'Gestión de Vuelos' : activeTab() === 'airplanes' ? 'Gestión de Aviones' : 'Historial de Vuelos' }}</h1>
-      <p>{{ activeTab() === 'flights' ? 'Crea y administra los vuelos del aeropuerto' : activeTab() === 'airplanes' ? 'Crea y administra la flota de aviones' : 'Consulta todos los vuelos registrados' }}</p>
+      <h1>
+        @if (activeTab() === 'flights') { Gestión de Vuelos }
+        @else if (activeTab() === 'airplanes') { Gestión de Aviones }
+        @else if (activeTab() === 'history') { Historial de Vuelos }
+        @else if (activeTab() === 'users') { Gestión de Usuarios }
+        @else { Registro de Auditoría }
+      </h1>
+      <p>
+        @if (activeTab() === 'flights') { Crea y administra los vuelos del aeropuerto }
+        @else if (activeTab() === 'airplanes') { Crea y administra la flota de aviones }
+        @else if (activeTab() === 'history') { Consulta todos los vuelos registrados }
+        @else if (activeTab() === 'users') { Crea, edita y gestiona los usuarios del sistema }
+        @else { Historial de acciones realizadas por administradores }
+      </p>
     </div>
-    @if (activeTab() !== 'history') {
-      <button class="btn-new" (click)="showForm.update(v => !v)">
-        @if (showForm()) { ✕ Cancelar } @else { + {{ activeTab() === 'flights' ? 'Nuevo Vuelo' : 'Nuevo Avión' }} }
-      </button>
+    @if (activeTab() !== 'history' && activeTab() !== 'audit') {
+      @if (activeTab() === 'users') {
+        <button class="btn-new" (click)="openCreateUserForm()">+ Nuevo Usuario</button>
+      } @else {
+        <button class="btn-new" (click)="showForm.update(v => !v)">
+          @if (showForm()) { ✕ Cancelar } @else { + {{ activeTab() === 'flights' ? 'Nuevo Vuelo' : 'Nuevo Avión' }} }
+        </button>
+      }
     }
   </div>
 
@@ -383,4 +399,208 @@
       }
     </div>
   }
+
+  <!-- ── TAB: GESTIÓN DE USUARIOS ─────────────────────────────────────────── -->
+  @if (activeTab() === 'users') {
+    <div class="tab-content">
+
+      <!-- Formulario crear/editar usuario -->
+      @if (showUserForm()) {
+        <div class="form-card">
+          <h2>{{ editingUser() ? 'Editar Usuario' : 'Crear Nuevo Usuario' }}</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nombre <span class="req">*</span></label>
+              <input type="text" [value]="uFirstName()" (input)="uFirstName.set($any($event.target).value)"
+                placeholder="Nombre" [class.error]="uFirstNameError()" />
+              @if (uFirstNameError()) { <span class="field-error">{{ uFirstNameError() }}</span> }
+            </div>
+            <div class="form-group">
+              <label>Apellido <span class="req">*</span></label>
+              <input type="text" [value]="uLastName()" (input)="uLastName.set($any($event.target).value)"
+                placeholder="Apellido" [class.error]="uLastNameError()" />
+              @if (uLastNameError()) { <span class="field-error">{{ uLastNameError() }}</span> }
+            </div>
+            @if (!editingUser()) {
+              <div class="form-group">
+                <label>Email <span class="req">*</span></label>
+                <input type="email" [value]="uEmail()" (input)="uEmail.set($any($event.target).value)"
+                  placeholder="correo@ejemplo.com" [class.error]="uEmailError()" />
+                @if (uEmailError()) { <span class="field-error">{{ uEmailError() }}</span> }
+              </div>
+            }
+            <div class="form-group">
+              <label>Teléfono <span class="req">*</span></label>
+              <input type="text" [value]="uPhone()" (input)="uPhone.set($any($event.target).value)"
+                placeholder="+57 300 000 0000" [class.error]="uPhoneError()" />
+              @if (uPhoneError()) { <span class="field-error">{{ uPhoneError() }}</span> }
+            </div>
+            <div class="form-group">
+              <label>Tipo de Documento <span class="req">*</span></label>
+              <select [value]="uDocumentType()" (change)="uDocumentType.set($any($event.target).value)">
+                @for (dt of documentTypes; track dt) {
+                  <option [value]="dt">{{ dt }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Número de Documento <span class="req">*</span></label>
+              <input type="text" [value]="uDocumentId()" (input)="uDocumentId.set($any($event.target).value)"
+                placeholder="12345678" [class.error]="uDocumentIdError()" />
+              @if (uDocumentIdError()) { <span class="field-error">{{ uDocumentIdError() }}</span> }
+            </div>
+            @if (!editingUser()) {
+              <div class="form-group">
+                <label>Contraseña <span class="req">*</span></label>
+                <input type="password" [value]="uPassword()" (input)="uPassword.set($any($event.target).value)"
+                  placeholder="Mín. 8 caracteres" [class.error]="uPasswordError()" />
+                @if (uPasswordError()) { <span class="field-error">{{ uPasswordError() }}</span> }
+              </div>
+              <div class="form-group">
+                <label>Rol <span class="req">*</span></label>
+                <select [value]="uRole()" (change)="uRole.set($any($event.target).value)">
+                  @for (r of roles; track r) {
+                    <option [value]="r">{{ getRoleLabel(r) }}</option>
+                  }
+                </select>
+              </div>
+            }
+          </div>
+          <div class="form-actions">
+            <button class="btn-cancel" (click)="cancelUserForm()">Cancelar</button>
+            <button class="btn-submit" (click)="onSubmitUser()" [disabled]="uSubmitting()">
+              {{ uSubmitting() ? 'Guardando...' : (editingUser() ? 'Guardar Cambios' : 'Crear Usuario') }}
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Filtros -->
+      <div class="filters-bar">
+        <select [value]="userFilterRole()" (change)="userFilterRole.set($any($event.target).value)">
+          <option value="">Todos los roles</option>
+          @for (r of roles; track r) {
+            <option [value]="r">{{ getRoleLabel(r) }}</option>
+          }
+          <option value="PASSENGER">Pasajero</option>
+        </select>
+        <select [value]="userFilterActive()" (change)="userFilterActive.set($any($event.target).value)">
+          <option value="all">Todos los estados</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
+      </div>
+
+      <!-- Tabla de usuarios -->
+      @if (filteredUsers.length === 0) {
+        <div class="empty-state">No hay usuarios que coincidan con los filtros.</div>
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Documento</th>
+                <th>Teléfono</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of filteredUsers; track user.id) {
+                <tr [class.inactive-row]="!user.active">
+                  <td>{{ user.firstName }} {{ user.lastName }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.documentType }} {{ user.documentId }}</td>
+                  <td>{{ user.phone }}</td>
+                  <td>
+                    <select [value]="user.role" (change)="changeUserRole(user, $any($event.target).value)"
+                      class="role-select">
+                      @if (user.role === 'PASSENGER') {
+                        <option value="PASSENGER">Pasajero</option>
+                      }
+                      @for (r of roles; track r) {
+                        <option [value]="r">{{ getRoleLabel(r) }}</option>
+                      }
+                    </select>
+                  </td>
+                  <td>
+                    <span [class]="user.active ? 'badge-success' : 'badge-danger'">
+                      {{ user.active ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    <button class="btn-icon btn-edit" title="Editar" (click)="openEditUserForm(user)">✏️</button>
+                    <button class="btn-icon" [title]="user.active ? 'Desactivar' : 'Reactivar'"
+                      (click)="toggleUserActive(user)">
+                      {{ user.active ? '🔒' : '🔓' }}
+                    </button>
+                    <button class="btn-icon btn-key" title="Restablecer contraseña"
+                      (click)="openResetPassword(user.id)">🔑</button>
+                    <button class="btn-icon btn-delete" title="Eliminar" (click)="deleteUser(user)">🗑️</button>
+                  </td>
+                </tr>
+                <!-- Formulario inline de reset password -->
+                @if (showResetPasswordForm() === user.id) {
+                  <tr class="reset-password-row">
+                    <td colspan="7">
+                      <div class="reset-password-form">
+                        <input type="password" [value]="uNewPassword()"
+                          (input)="uNewPassword.set($any($event.target).value)"
+                          placeholder="Nueva contraseña" [class.error]="uNewPasswordError()" />
+                        @if (uNewPasswordError()) {
+                          <span class="field-error">{{ uNewPasswordError() }}</span>
+                        }
+                        <button class="btn-submit btn-sm" (click)="submitResetPassword(user.id)">Guardar</button>
+                        <button class="btn-cancel btn-sm" (click)="cancelResetPassword()">Cancelar</button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── TAB: AUDITORÍA ────────────────────────────────────────────────────── -->
+  @if (activeTab() === 'audit') {
+    <div class="tab-content">
+      @if (auditLogs().length === 0) {
+        <div class="empty-state">No hay registros de auditoría.</div>
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Acción</th>
+                <th>Admin ID</th>
+                <th>Usuario Afectado</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (log of auditLogs(); track log.id) {
+                <tr>
+                  <td>{{ log.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td>
+                    <span class="badge-audit">{{ getAuditActionLabel(log.action) }}</span>
+                  </td>
+                  <td>{{ log.adminId }}</td>
+                  <td>{{ log.targetEmail || '—' }}</td>
+                  <td>{{ log.description }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
 </div>

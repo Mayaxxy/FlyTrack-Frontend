@@ -1,0 +1,278 @@
+<app-navbar></app-navbar>
+
+<div class="receptionist-container">
+  <div class="receptionist-header">
+    <h1>🏢 Panel Recepcionista</h1>
+    <p>Gestión operativa de pasajeros y vuelos</p>
+  </div>
+
+  <!-- TAB: Buscar Pasajero y Check-In -->
+  @if (activeTab() === 'search') {
+    <div class="tab-content">
+      <div class="search-section">
+        <div class="search-bar">
+          <input
+            type="text"
+            placeholder="Número de documento..."
+            [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"
+            (keyup.enter)="search()"
+            aria-label="Buscar pasajero"
+          />
+          <button class="btn-search" (click)="search()" [disabled]="loading()">
+            🔍 Buscar
+          </button>
+        </div>
+      </div>
+
+      @if (loading()) {
+        <div class="loading-container"><div class="spinner"></div><p>Buscando...</p></div>
+      }
+
+      @if (error()) {
+        <div class="error-container"><p>{{ error() }}</p></div>
+      }
+
+      @if (successMsg()) {
+        <div class="success-container"><p>{{ successMsg() }}</p></div>
+      }
+
+      @if (result(); as res) {
+        <div class="passenger-card">
+          <div class="passenger-info">
+            <div class="passenger-avatar">{{ res.passenger.firstName[0] }}{{ res.passenger.lastName[0] }}</div>
+            <div class="passenger-details">
+              <h2>{{ res.passenger.firstName }} {{ res.passenger.lastName }}</h2>
+              <p>{{ res.passenger.documentType }}: {{ res.passenger.documentId }}</p>
+              <p>{{ res.passenger.email }}</p>
+              <p>{{ res.passenger.phone }}</p>
+            </div>
+          </div>
+
+          <div class="reservations-section">
+            <h3>Reservas</h3>
+            @if (res.reservations.length === 0) {
+              <p class="no-data">Sin reservas activas</p>
+            }
+            @for (r of res.reservations; track r.id) {
+              <div class="reservation-card">
+                <div class="res-header">
+                  <span class="flight-code">{{ r.flight.flightCode }}</span>
+                  <span class="status-badge" [ngClass]="getStatusClass(r.flight.status)">
+                    {{ getStatusText(r.flight.status) }}
+                  </span>
+                  <span class="res-code">Reserva: {{ r.reservationCode }}</span>
+                </div>
+                <div class="res-route">
+                  <span>{{ r.flight.originAirport }}</span>
+                  <span> → </span>
+                  <span>{{ r.flight.destinationAirport }}</span>
+                </div>
+                <div class="res-details">
+                  <span>{{ formatDate(r.flight.departureTime) }} {{ formatTime(r.flight.departureTime) }}</span>
+                  <span>Puerta: {{ r.flight.gate }}</span>
+                </div>
+                <div class="res-actions">
+                  @if (r.hasCheckIn && r.checkInId) {
+                    <button class="btn-boarding-pass" (click)="viewBoardingPass(r)">
+                      🎫 Ver QR
+                    </button>
+                  } @else if (canCheckIn(r)) {
+                    <button class="btn-checkin" (click)="performCheckIn(r)" [disabled]="loading()">
+                      ✅ Check-In
+                    </button>
+                  } @else if (r.flight.status === 'CANCELLED') {
+                    <span class="info-message cancelled">Cancelado</span>
+                  } @else {
+                    <span class="info-message">No disponible</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- TAB: Ver Vuelos -->
+  @if (activeTab() === 'flights') {
+    <div class="tab-content">
+      <div class="flights-section">
+        <h3>✈️ Panel de Vuelos</h3>
+        <p class="info-text">Información en tiempo real de vuelos programados</p>
+        
+        <div class="flights-filters">
+          <div class="filter-group">
+            <label>Puerta:</label>
+            <select [value]="gateFilter()" (change)="gateFilter.set($any($event.target).value)">
+              <option value="ALL">Todas las puertas</option>
+              @for (gate of getUniqueGates(); track gate) {
+                <option [value]="gate">Puerta {{ gate }}</option>
+              }
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Estado:</label>
+            <select [value]="flightStatusFilter()" (change)="flightStatusFilter.set($any($event.target).value)">
+              <option value="ALL">Todos los estados</option>
+              <option value="SCHEDULED">Programado</option>
+              <option value="DELAYED">Retrasado</option>
+              <option value="BOARDING">Abordando</option>
+              <option value="DEPARTED">Despegado</option>
+            </select>
+          </div>
+        </div>
+        
+        @if (filteredFlights().length === 0) {
+          <div class="no-data-box">
+            <p>No hay vuelos que coincidan con los filtros</p>
+          </div>
+        } @else {
+          <div class="flights-table-container">
+            <table class="flights-table">
+              <thead>
+                <tr>
+                  <th>Vuelo</th>
+                  <th>Ruta</th>
+                  <th>Salida</th>
+                  <th>Llegada</th>
+                  <th>Puerta</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (flight of filteredFlights(); track flight.id) {
+                  <tr>
+                    <td class="flight-code-cell">{{ flight.flightCode }}</td>
+                    <td class="route-cell">
+                      <span class="airport-code">{{ flight.originAirport }}</span>
+                      <span class="arrow-small">→</span>
+                      <span class="airport-code">{{ flight.destinationAirport }}</span>
+                    </td>
+                    <td class="time-cell">
+                      <div class="time-info">
+                        <span class="time">{{ formatTime(flight.departureTime) }}</span>
+                        <span class="date-small">{{ formatDateShort(flight.departureTime) }}</span>
+                      </div>
+                    </td>
+                    <td class="time-cell">
+                      <div class="time-info">
+                        <span class="time">{{ formatTime(flight.arrivalTime) }}</span>
+                        <span class="date-small">{{ formatDateShort(flight.arrivalTime) }}</span>
+                      </div>
+                    </td>
+                    <td class="gate-cell">{{ flight.gate }}</td>
+                    <td class="status-cell">
+                      <span class="status-badge-table" [ngClass]="getStatusClass(flight.status)">
+                        {{ getStatusText(flight.status) }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- TAB: Reportes de Equipaje -->
+  @if (activeTab() === 'reports') {
+    <div class="tab-content">
+      <div class="reports-section">
+        <h3>🧳 Gestión de Reportes de Equipaje</h3>
+        
+        <div class="reports-tabs">
+          <button 
+            [class.active]="statusFilter() !== 'RESOLVED'" 
+            (click)="statusFilter.set('ACTIVE')">
+            ⚠️ Activos ({{ activeReportsCount() }})
+          </button>
+          <button 
+            [class.active]="statusFilter() === 'RESOLVED'" 
+            (click)="statusFilter.set('RESOLVED')">
+            ✓ Histórico
+          </button>
+        </div>
+
+        @if (statusFilter() !== 'RESOLVED') {
+          <!-- REPORTES ACTIVOS -->
+          <div class="active-reports">
+            @if (activeReports().length === 0) {
+              <div class="no-data-box">
+                <p>✓ No hay reportes activos</p>
+              </div>
+            } @else {
+              @for (report of activeReports(); track report.id) {
+                <div class="report-card-simple">
+                  <div class="report-main">
+                    <div class="report-badge-container">
+                      <span class="report-number">#{{ report.id }}</span>
+                      <span class="status-badge-simple" [ngClass]="'status-' + report.status.toLowerCase()">
+                        {{ getStatusLabel(report.status) }}
+                      </span>
+                    </div>
+                    <div class="report-content">
+                      <div class="passenger-info-compact">
+                        <span class="passenger-name">{{ report.passenger.firstName }} {{ report.passenger.lastName }}</span>
+                        <span class="passenger-doc">{{ report.passenger.documentType }}: {{ report.passenger.documentId }}</span>
+                      </div>
+                      <div class="report-meta">
+                        <span class="meta-item">✈️ {{ report.flight.flightCode }}</span>
+                        <span class="meta-item">📧 {{ report.passenger.email }}</span>
+                        <span class="meta-item">📱 {{ report.passenger.phone }}</span>
+                        <span class="meta-item">🕐 {{ formatTime(report.createdAt) }}</span>
+                      </div>
+                      <p class="report-text">{{ report.description }}</p>
+                    </div>
+                  </div>
+                  <div class="report-action">
+                    @if (report.status === 'PENDING') {
+                      <button 
+                        class="btn-advance btn-start" 
+                        (click)="updateReportStatus(report.id, BaggageReportStatus.IN_PROGRESS)"
+                        [disabled]="loading()">
+                        ▶ Iniciar
+                      </button>
+                    } @else if (report.status === 'IN_PROGRESS') {
+                      <button 
+                        class="btn-advance btn-resolve" 
+                        (click)="updateReportStatus(report.id, BaggageReportStatus.RESOLVED)"
+                        [disabled]="loading()">
+                        ✓ Resolver
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        } @else {
+          <!-- HISTÓRICO -->
+          <div class="resolved-reports">
+            @if (resolvedReports().length === 0) {
+              <div class="no-data-box">
+                <p>No hay reportes resueltos</p>
+              </div>
+            } @else {
+              <div class="history-list">
+                @for (report of resolvedReports(); track report.id) {
+                  <div class="history-item">
+                    <span class="history-id">#{{ report.id }}</span>
+                    <span class="history-doc">{{ report.passenger.documentType }} {{ report.passenger.documentId }}</span>
+                    <span class="history-flight">{{ report.flight.flightCode }}</span>
+                    <span class="history-desc">{{ report.description }}</span>
+                    <span class="history-date">{{ formatDateShort(report.createdAt) }}</span>
+                    <span class="history-status">✓ Resuelto</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

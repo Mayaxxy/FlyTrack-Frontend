@@ -76,6 +76,14 @@ export class AuthService {
     return this.currentUserSubject.value?.role === 'ADMIN';
   }
 
+  isReceptionist(): boolean {
+    return this.currentUserSubject.value?.role === 'RECEPCIONISTA';
+  }
+
+  isPassenger(): boolean {
+    return this.currentUserSubject.value?.role === 'PASSENGER';
+  }
+
   private handleAuthResponse(response: AuthResponse): void {
     localStorage.setItem('token', response.token);
     localStorage.setItem('currentUser', JSON.stringify(response.passenger));

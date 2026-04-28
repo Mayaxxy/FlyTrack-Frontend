@@ -24,6 +24,7 @@
     <div class="notifications-list">
       @if (notifications().length === 0) {
         <div class="no-notifications">
+          <div class="empty-icon">🔔</div>
           <p>No tienes notificaciones</p>
         </div>
       }
@@ -40,16 +41,28 @@
           </div>
 
           <div class="notification-content">
-            <div class="notification-header">
-              <span class="flight-code">{{ notification.flightCode }}</span>
-              <span class="notification-time">{{ formatTime(notification.createdAt) }}</span>
+            <div class="notification-header-row">
+              <div class="notification-title-group">
+                <span class="notification-type-label">{{ getNotificationTitle(notification.type) }}</span>
+                @if (!notification.read) {
+                  <span class="unread-dot">●</span>
+                }
+              </div>
+              <span class="notification-time">{{ formatTime(notification.sentAt || notification.createdAt!) }}</span>
+            </div>
+
+            <div class="flight-info-compact">
+              <span class="flight-code-badge">{{ notification.flight.flightCode }}</span>
+              <span class="route-compact">{{ notification.flight.originAirport }} → {{ notification.flight.destinationAirport }}</span>
             </div>
 
             <p class="notification-message">{{ notification.message }}</p>
 
-            @if (!notification.read) {
-              <span class="unread-indicator">●</span>
-            }
+            <div class="flight-details-row">
+              <span class="detail-item">🕐 {{ formatFlightTime(notification.flight.departureTime) }}</span>
+              <span class="detail-item">📅 {{ formatFlightDate(notification.flight.departureTime) }}</span>
+              <span class="detail-item">🚪 Puerta {{ notification.flight.gate }}</span>
+            </div>
           </div>
         </div>
       }

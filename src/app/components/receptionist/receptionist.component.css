@@ -1,0 +1,187 @@
+.receptionist-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.receptionist-header { margin-bottom: 2rem; }
+.receptionist-header h1 { font-size: 1.8rem; color: #1a1a2e; margin: 0; }
+.receptionist-header p { color: #666; margin: 0.25rem 0 0; }
+
+.search-section { background: #fff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); margin-bottom: 1.5rem; }
+
+.search-bar { display: flex; gap: 0.75rem; }
+.search-bar input { flex: 1; padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+.search-bar input:focus { outline: none; border-color: #E30613; }
+
+.btn-search { padding: 0.75rem 1.5rem; background: #E30613; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+.btn-search:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.loading-container, .error-container, .success-container { text-align: center; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+.error-container { background: #fff5f5; color: #c0392b; }
+.success-container { background: #f0fff4; color: #27ae60; }
+.spinner { width: 32px; height: 32px; border: 3px solid #f3f3f3; border-top-color: #E30613; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 0.5rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.passenger-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.08); overflow: hidden; }
+
+.passenger-info { display: flex; align-items: center; gap: 1rem; padding: 1.5rem; background: #f8f9fa; border-bottom: 1px solid #eee; }
+.passenger-avatar { width: 56px; height: 56px; border-radius: 50%; background: #E30613; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; flex-shrink: 0; }
+.passenger-details h2 { margin: 0 0 0.25rem; font-size: 1.2rem; }
+.passenger-details p { margin: 0.1rem 0; color: #555; font-size: 0.9rem; }
+
+.reservations-section { padding: 1.5rem; }
+.reservations-section h3 { margin: 0 0 1rem; color: #1a1a2e; }
+.no-data { color: #999; font-style: italic; }
+
+.reservation-card { border: 1px solid #eee; border-radius: 6px; padding: 1rem; margin-bottom: 0.75rem; }
+.res-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+.flight-code { font-weight: 700; font-size: 1.1rem; color: #1a1a2e; }
+.res-code { font-size: 0.8rem; color: #888; margin-left: auto; }
+.res-route { font-size: 1rem; color: #333; margin-bottom: 0.25rem; }
+.res-details { font-size: 0.85rem; color: #666; display: flex; gap: 1rem; margin-bottom: 0.75rem; }
+.res-actions { display: flex; gap: 0.5rem; }
+
+.status-badge { padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+.status-scheduled { background: #e3f2fd; color: #1565c0; }
+.status-delayed { background: #fff3e0; color: #e65100; }
+.status-boarding { background: #e8f5e9; color: #2e7d32; }
+.status-departed, .status-arrived { background: #f3e5f5; color: #6a1b9a; }
+.status-cancelled { background: #ffebee; color: #c62828; }
+
+.btn-checkin { padding: 0.5rem 1rem; background: #E30613; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+.btn-checkin:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-boarding-pass { padding: 0.5rem 1rem; background: #1565c0; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+.info-message { font-size: 0.85rem; color: #888; padding: 0.5rem 0; }
+.info-message.cancelled { color: #c62828; }
+
+.tab-content { animation: fadeIn .3s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.info-text { color: #666; font-size: 0.9rem; margin-bottom: 1rem; }
+
+.flights-filters { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.filter-group { display: flex; align-items: center; gap: 0.5rem; background: #f8f9fa; padding: 0.75rem 1rem; border-radius: 6px; }
+.filter-group label { font-weight: 600; color: #333; font-size: 0.9rem; }
+.filter-group select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; cursor: pointer; background: #fff; }
+
+.flights-table-container { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.flights-table { width: 100%; border-collapse: collapse; }
+.flights-table thead { background: #f8f9fa; }
+.flights-table th { padding: 1rem; text-align: left; font-weight: 600; color: #333; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #eee; }
+.flights-table tbody tr { border-bottom: 1px solid #f0f0f0; transition: background .2s; }
+.flights-table tbody tr:hover { background: #fafafa; }
+.flights-table td { padding: 1rem; font-size: 0.9rem; }
+.flight-code-cell { font-weight: 700; color: #E30613; font-size: 1rem; }
+.route-cell { display: flex; align-items: center; gap: 0.5rem; }
+.route-cell .airport-code { font-weight: 600; color: #333; }
+.route-cell .arrow-small { color: #999; }
+.time-cell .time-info { display: flex; flex-direction: column; gap: 0.15rem; }
+.time-cell .time { font-weight: 600; color: #333; font-size: 0.95rem; }
+.time-cell .date-small { font-size: 0.75rem; color: #888; }
+.gate-cell { font-weight: 600; color: #1565c0; text-align: center; }
+.status-cell { text-align: center; }
+.status-badge-table { padding: 0.35rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+
+.flights-grid { display: grid; gap: 1rem; }
+.flight-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 1.25rem; box-shadow: 0 2px 4px rgba(0,0,0,.05); }
+.flight-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.flight-code-large { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; }
+.flight-route { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.airport { flex: 1; }
+.airport-code { font-size: 1.5rem; font-weight: 700; color: #E30613; }
+.arrow { font-size: 1.5rem; color: #999; }
+.flight-details { display: grid; gap: 0.5rem; }
+.detail-item { display: flex; justify-content: space-between; font-size: 0.9rem; }
+.detail-item .label { color: #666; }
+.detail-item .value { font-weight: 600; color: #333; }
+
+.filter-bar { background: #f8f9fa; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+.filter-bar label { font-weight: 600; color: #333; }
+.filter-bar select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; cursor: pointer; }
+
+.reports-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+.reports-tabs button { padding: 0.75rem 1.5rem; background: #f8f9fa; border: 2px solid #eee; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; color: #666; transition: all .2s; }
+.reports-tabs button.active { background: #fff; border-color: #E30613; color: #E30613; }
+.reports-tabs button:hover { border-color: #E30613; }
+
+.active-reports { display: flex; flex-direction: column; gap: 1rem; }
+.report-card-simple { background: #fff; border: 2px solid #eee; border-radius: 8px; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; transition: border-color .2s; }
+.report-card-simple:hover { border-color: #E30613; }
+.report-main { flex: 1; display: flex; gap: 1rem; }
+.report-badge-container { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 100px; }
+.report-number { font-size: 1.1rem; font-weight: 700; color: #333; }
+.status-badge-simple { padding: 0.3rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+.status-badge-simple.status-pending { background: #fff3e0; color: #e65100; }
+.status-badge-simple.status-in_progress { background: #e3f2fd; color: #1565c0; }
+.report-content { flex: 1; }
+.passenger-info-compact { margin-bottom: 0.5rem; }
+.passenger-name { font-weight: 700; color: #1a1a2e; font-size: 1.05rem; margin-right: 0.75rem; }
+.passenger-doc { color: #666; font-size: 0.85rem; }
+.report-meta { display: flex; gap: 1rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+.meta-item { font-size: 0.85rem; color: #666; }
+.report-text { margin: 0; color: #333; font-size: 0.95rem; line-height: 1.5; }
+.report-action { display: flex; align-items: center; }
+.btn-advance { padding: 0.75rem 1.5rem; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all .2s; white-space: nowrap; }
+.btn-start { background: #1565c0; }
+.btn-start:hover { background: #0d47a1; }
+.btn-resolve { background: #2e7d32; }
+.btn-resolve:hover { background: #1b5e20; }
+.btn-advance:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.resolved-reports { }
+.history-list { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.history-item { display: grid; grid-template-columns: 60px 150px 100px 1fr 100px 100px; gap: 1rem; padding: 1rem; border-bottom: 1px solid #f0f0f0; align-items: center; font-size: 0.9rem; }
+.history-item:last-child { border-bottom: none; }
+.history-item:hover { background: #fafafa; }
+.history-id { font-weight: 700; color: #666; }
+.history-doc { font-weight: 600; color: #333; font-size: 0.85rem; }
+.history-flight { font-weight: 600; color: #E30613; }
+.history-desc { color: #555; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-date { color: #888; font-size: 0.85rem; }
+.history-status { color: #2e7d32; font-weight: 600; font-size: 0.85rem; }
+
+.reports-table-container { background: #fff; border-radius: 8px; overflow-x: auto; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.reports-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+.reports-table thead { background: #f8f9fa; }
+.reports-table th { padding: 1rem; text-align: left; font-weight: 600; color: #333; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #eee; }
+.reports-table tbody tr { border-bottom: 1px solid #f0f0f0; transition: background .2s; }
+.reports-table tbody tr:hover { background: #fafafa; }
+.reports-table td { padding: 1rem; font-size: 0.9rem; vertical-align: middle; }
+.report-id-cell { font-weight: 700; color: #666; }
+.passenger-id-cell { color: #666; }
+.description-cell { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #555; }
+.date-cell .time-info { display: flex; flex-direction: column; gap: 0.15rem; }
+.date-cell .time { font-weight: 600; color: #333; font-size: 0.9rem; }
+.date-cell .date-small { font-size: 0.75rem; color: #888; }
+.report-status-badge-table { padding: 0.35rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+.report-status-badge-table.status-pending { background: #fff3e0; color: #e65100; }
+.report-status-badge-table.status-in_progress { background: #e3f2fd; color: #1565c0; }
+.report-status-badge-table.status-resolved { background: #e8f5e9; color: #2e7d32; }
+.action-cell { text-align: center; }
+.btn-next-status { padding: 0.5rem 1rem; background: #E30613; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; transition: background .2s; }
+.btn-next-status:hover { background: #c00510; }
+.btn-next-status:disabled { opacity: 0.6; cursor: not-allowed; }
+.completed-text { color: #2e7d32; font-size: 0.85rem; font-weight: 600; }
+
+.reports-list { display: grid; gap: 1rem; }
+.report-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 1.25rem; box-shadow: 0 2px 4px rgba(0,0,0,.05); }
+.report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.report-id { font-weight: 700; color: #1a1a2e; }
+.report-status-badge { padding: 0.3rem 0.75rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+.report-status-badge.status-pending { background: #fff3e0; color: #e65100; }
+.report-status-badge.status-in_progress { background: #e3f2fd; color: #1565c0; }
+.report-status-badge.status-resolved { background: #e8f5e9; color: #2e7d32; }
+.report-info { display: grid; gap: 0.5rem; margin-bottom: 1rem; }
+.info-row { display: flex; gap: 0.5rem; font-size: 0.9rem; }
+.info-row .label { color: #666; font-weight: 600; }
+.info-row .value { color: #333; }
+.report-description { margin-bottom: 1rem; }
+.report-description strong { color: #333; display: block; margin-bottom: 0.25rem; }
+.report-description p { margin: 0; color: #555; font-size: 0.9rem; line-height: 1.5; }
+.report-actions { display: flex; gap: 0.5rem; }
+.btn-update-status { padding: 0.6rem 1.25rem; background: #E30613; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background .2s; }
+.btn-update-status:hover { background: #c00510; }
+.btn-update-status:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.no-data-box { background: #f8f9fa; padding: 2rem; text-align: center; border-radius: 8px; color: #999; }

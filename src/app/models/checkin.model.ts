@@ -1,5 +1,4 @@
 export interface CheckInRequest {
-  flightCode: string;
   reservationCode: string;
 }
 
@@ -11,6 +10,16 @@ export interface BoardingPass {
   gate: string;
   seatNumber: string;
   departureTime: string;
-  qrCode: string;
+  qrCodeBase64: string;
+  /** @deprecated use qrCodeBase64 */
+  qrCode?: string;
   generatedAt: string;
+  validUntil: string;
+  flight?: {
+    flightCode: string;
+    gate: string;
+    departureTime: string;
+    originAirport: string;
+    destinationAirport: string;
+  };
 }

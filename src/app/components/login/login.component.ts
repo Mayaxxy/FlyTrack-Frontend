@@ -83,7 +83,14 @@ export class LoginComponent {
     this.authService.login(request).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigate(['/dashboard']);
+        const role = this.authService.getCurrentUser()?.role;
+        if (role === 'ADMIN') {
+          this.router.navigate(['/admin']);
+        } else if (role === 'RECEPCIONISTA') {
+          this.router.navigate(['/receptionist']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err) => {
         this.loading.set(false);

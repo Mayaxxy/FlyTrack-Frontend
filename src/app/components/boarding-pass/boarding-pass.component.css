@@ -63,12 +63,40 @@
 
 /* Expiry warning */
 .expiry-warning {
-  background: #fef3c7;
-  color: #92400e;
   padding: 0.75rem 2rem;
   font-size: 0.85rem;
   font-weight: 600;
   border-bottom: 1px dashed var(--border);
+  transition: all 0.3s;
+}
+
+.expiry-warning.warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.expiry-warning.danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* QR Header */
+.qr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+/* QR Status Badge */
+.qr-status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* QR */
@@ -76,6 +104,47 @@
   padding: 1.5rem 2rem;
   text-align: center;
   border-bottom: 1px dashed var(--border);
+  transition: background 0.3s;
+}
+
+.qr-section.qr-status-active {
+  background: #fafafa;
+}
+
+.qr-section.qr-status-active .qr-status-badge {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.qr-section.qr-status-active .qr-code {
+  border-color: #66bb6a;
+}
+
+.qr-section.qr-status-expiring {
+  background: #fffbeb;
+}
+
+.qr-section.qr-status-expiring .qr-status-badge {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.qr-section.qr-status-expiring .qr-code {
+  border-color: #ffc107;
+}
+
+.qr-section.qr-status-expired {
+  background: #fef2f2;
+}
+
+.qr-section.qr-status-expired .qr-status-badge {
+  background: #fee;
+  color: #c62828;
+}
+
+.qr-section.qr-status-expired .qr-code {
+  border-color: #ef5350;
+  opacity: 0.5;
 }
 
 .qr-label {

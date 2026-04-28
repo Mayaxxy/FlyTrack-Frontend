@@ -9,6 +9,14 @@
             <span class="brand-sub">AeroPuerto Smart</span>
           </div>
         </a>
+      } @else if (user.role === 'RECEPCIONISTA') {
+        <a [routerLink]="['/receptionist']" [queryParams]="{tab: 'search'}" class="navbar-brand">
+          <span class="brand-icon">✈</span>
+          <div>
+            <span class="brand-name">FlyTrack</span>
+            <span class="brand-sub">AeroPuerto Smart</span>
+          </div>
+        </a>
       } @else {
         <a routerLink="/dashboard" class="navbar-brand">
           <span class="brand-icon">✈</span>
@@ -35,6 +43,22 @@
           </a>
           <a [routerLink]="['/admin']" [queryParams]="{tab: 'history'}" routerLinkActive="active" class="nav-link">
             📋 Historial
+          </a>
+          <a [routerLink]="['/admin']" [queryParams]="{tab: 'users'}" routerLinkActive="active" class="nav-link">
+            👥 Usuarios
+          </a>
+          <a [routerLink]="['/admin']" [queryParams]="{tab: 'audit'}" routerLinkActive="active" class="nav-link">
+            🔍 Auditoría
+          </a>
+        } @else if (user.role === 'RECEPCIONISTA') {
+          <a [routerLink]="['/receptionist']" [queryParams]="{tab: 'search'}" routerLinkActive="active" class="nav-link">
+            🔍 Buscar Pasajero
+          </a>
+          <a [routerLink]="['/receptionist']" [queryParams]="{tab: 'flights'}" routerLinkActive="active" class="nav-link">
+            ✈️ Ver Vuelos
+          </a>
+          <a [routerLink]="['/receptionist']" [queryParams]="{tab: 'reports'}" routerLinkActive="active" class="nav-link">
+            🧳 Reportes de Equipaje
           </a>
         } @else {
           <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">

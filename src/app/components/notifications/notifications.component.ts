@@ -83,6 +83,23 @@ export class NotificationsComponent implements OnInit {
     }
   }
 
+  getNotificationTitle(type: NotificationType): string {
+    switch (type) {
+      case NotificationType.GATE_CHANGE:
+        return 'Cambio de Puerta';
+      case NotificationType.TIME_CHANGE:
+        return 'Cambio de Horario';
+      case NotificationType.DELAY:
+        return 'Vuelo Retrasado';
+      case NotificationType.CANCELLATION:
+        return 'Vuelo Cancelado';
+      case NotificationType.BOARDING_STARTED:
+        return 'Abordaje Iniciado';
+      default:
+        return 'Notificación';
+    }
+  }
+
   formatTime(dateString: string): string {
     const date = new Date(dateString);
     const now = new Date();
@@ -97,5 +114,13 @@ export class NotificationsComponent implements OnInit {
     if (diffDays < 7) return `Hace ${diffDays} días`;
     
     return date.toLocaleDateString('es-CO');
+  }
+
+  formatFlightTime(dateString: string): string {
+    return new Date(dateString).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  formatFlightDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('es-CO', { day: '2-digit', month: 'short' });
   }
 }
