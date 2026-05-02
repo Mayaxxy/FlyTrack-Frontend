@@ -70,47 +70,6 @@
               {{ showPassword() ? '🙈' : '👁' }}
             </button>
           </div>
-
-          <!-- Strength bar -->
-          @if (password().length > 0) {
-            <div class="strength-bar">
-              <div class="strength-track">
-                <div class="strength-fill" [class]="passwordStrength()"></div>
-              </div>
-              <span class="strength-label" [class]="passwordStrength()">
-                @switch (passwordStrength()) {
-                  @case ('weak')   { Débil }
-                  @case ('fair')   { Regular }
-                  @case ('good')   { Buena }
-                  @case ('strong') { Segura ✓ }
-                }
-              </span>
-            </div>
-
-            <!-- Rules checklist -->
-            <ul class="password-rules">
-              <li [class.valid]="passwordRules().length">
-                <span class="rule-icon">{{ passwordRules().length ? '✓' : '○' }}</span>
-                Mínimo 8 caracteres
-              </li>
-              <li [class.valid]="passwordRules().uppercase">
-                <span class="rule-icon">{{ passwordRules().uppercase ? '✓' : '○' }}</span>
-                Una letra mayúscula
-              </li>
-              <li [class.valid]="passwordRules().lowercase">
-                <span class="rule-icon">{{ passwordRules().lowercase ? '✓' : '○' }}</span>
-                Una letra minúscula
-              </li>
-              <li [class.valid]="passwordRules().number">
-                <span class="rule-icon">{{ passwordRules().number ? '✓' : '○' }}</span>
-                Un número
-              </li>
-              <li [class.valid]="passwordRules().special">
-                <span class="rule-icon">{{ passwordRules().special ? '✓' : '○' }}</span>
-                Un carácter especial (!&#64;#$...)
-              </li>
-            </ul>
-          }
         </div>
 
         <button type="submit" class="btn-primary" [disabled]="loading()">
