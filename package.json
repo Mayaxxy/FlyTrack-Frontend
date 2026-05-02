@@ -4,8 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
+"build": "ng build --configuration production",    "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:flytrack-frontend": "node dist/flytrack-frontend/server/server.mjs"
   },
