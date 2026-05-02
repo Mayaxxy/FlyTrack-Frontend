@@ -10,7 +10,6 @@
     "serve:ssr:flytrack-frontend": "node dist/flytrack-frontend/server/server.mjs"
   },
   "private": true,
-  "packageManager": "npm@11.8.0",
   "dependencies": {
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",

@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.aerosmart.com/api'
+  apiUrl: 'http://http://20.106.48.2:8080/api'
 };
